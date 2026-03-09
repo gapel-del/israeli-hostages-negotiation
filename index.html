@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>October 7 Hostage Crisis — Data Visualization</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: #f0f2f5;
+      color: #1a202c;
+      padding: 2rem;
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 1.9rem;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+      line-height: 1.25;
+    }
+
+    header p.subtitle {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-top: 0.4rem;
+      font-style: italic;
+    }
+
+    /* ── Stat cards ─────────────────────────────── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      border-left: 5px solid;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .stat-card.total  { border-color: #334155; }
+    .stat-card.alive  { border-color: #16a34a; }
+    .stat-card.bodies { border-color: #9ca3af; }
+    .stat-card.days   { border-color: #2563eb; }
+
+    .stat-number {
+      font-size: 2.4rem;
+      font-weight: 700;
+      line-height: 1.1;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Section cards ──────────────────────────── */
+    .section {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.75rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .section h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .map-container {
+      height: 460px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* ── Chart grid ─────────────────────────────── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    .chart-section {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .chart-section h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 300px;
+    }
+
+    .chart-wrapper.tall {
+      height: 380px;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    /* ── Legend ─────────────────────────────────── */
+    .legend {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+      font-size: 0.82rem;
+      color: #374151;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    /* ── Source note ────────────────────────────── */
+    .note {
+      font-size: 0.73rem;
+      color: #94a3b8;
+      margin-top: 0.75rem;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      font-style: italic;
+      padding-bottom: 2rem;
+    }
+
+    /* ── Leaflet popup overrides ────────────────── */
+    .leaflet-popup-content b { font-size: 0.95rem; }
+    .leaflet-popup-content   { font-size: 0.85rem; line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>October 7, 2023 — Hostage Crisis: When, How Many, and By What Means</h1>
+  <p class="subtitle">
+    Sources: Hope for Hostages (hopeforhostages.com) · Public news records · Wikipedia ·
+    Data as of January 26, 2026 (Day 885). Some monthly figures are estimates based on reported deal phases and IDF operation timelines.
+  </p>
+</header>
+
+<!-- ── Summary Statistics ─────────────────────────────────────── -->
+<div class="stats-row">
+  <div class="stat-card total">
+    <div class="stat-number">255</div>
+    <div class="stat-label">Total Hostages Taken (Oct 7, 2023)</div>
+  </div>
+  <div class="stat-card alive">
+    <div class="stat-number" style="color:#16a34a">168</div>
+    <div class="stat-label">Returned Home Alive</div>
+  </div>
+  <div class="stat-card bodies">
+    <div class="stat-number" style="color:#6b7280">87</div>
+    <div class="stat-label">Murdered / Bodies Recovered</div>
+  </div>
+  <div class="stat-card days">
+    <div class="stat-number" style="color:#2563eb">885</div>
+    <div class="stat-label">Days of Crisis</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MAP 1 — WORLD: NATIONALITIES OF ORIGIN
+═══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <h2>Map 1 · Global Nationalities — Countries with Nationals Taken Hostage</h2>
+  <div id="worldMap" class="map-container"></div>
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#2563eb"></span> Israeli nationals (primary)</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#dc2626"></span> Dual-nationality (Israeli + other)</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#d97706"></span> Foreign workers / other nationals</span>
+  </div>
+  <p class="note">Circle size proportional to number of nationals among the 168 returned alive.
+  Dual-nationality Israelis (e.g., Israeli-Argentine) are marked on both Israel and their secondary country.
+  Click circles for details.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MAP 2 — SOUTHERN ISRAEL: KIDNAPPING SITES
+═══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <h2>Map 2 · Kidnapping Sites — Southern Israel / Gaza Border Region</h2>
+  <div id="israelMap" class="map-container"></div>
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#dc2626"></span> Kibbutz</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> Music festival site (Nova / Supernova)</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span> Town / city</span>
+  </div>
+  <p class="note">Hostage counts per site are estimates based on public reporting; circle size is proportional to number taken.
+  Click a circle to see details. Dashed line = approximate Gaza–Israel border.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CHARTS
+═══════════════════════════════════════════════════════════════ -->
+<div class="charts-grid">
+
+  <!-- CHART 1: Timeline (full width) -->
+  <div class="chart-section full-width">
+    <h2>Chart 1 · Hostages Returned or Recovered by Month</h2>
+    <div class="chart-wrapper tall">
+      <canvas id="timelineChart"></canvas>
+    </div>
+    <p class="note">
+      Monthly counts are estimates. The November 2023 spike reflects the 7-day humanitarian ceasefire deal.
+      The January–August 2025 releases reflect Phase 1 and End-of-War deal phases.
+      "Bodies recovered" includes remains returned via negotiated deals AND recovered in IDF operations.
+    </p>
+  </div>
+
+  <!-- CHART 2: Cumulative over time -->
+  <div class="chart-section full-width">
+    <h2>Chart 2 · Cumulative Hostages Returned Alive vs. Bodies Recovered Over Time</h2>
+    <div class="chart-wrapper tall">
+      <canvas id="cumulativeChart"></canvas>
+    </div>
+    <p class="note">
+      Key inflection points: Nov 2023 ceasefire deal (+99 alive); Jun–Aug 2024 IDF operations (+6 alive);
+      Jan 19, 2025 Phase 1 deal begins; End-of-War deal completes mid-2025.
+    </p>
+  </div>
+
+  <!-- CHART 3: Overall outcome donut -->
+  <div class="chart-section">
+    <h2>Chart 3 · Overall Outcome (n=255)</h2>
+    <div class="chart-wrapper">
+      <canvas id="outcomeChart"></canvas>
+    </div>
+  </div>
+
+  <!-- CHART 4: Release method -->
+  <div class="chart-section">
+    <h2>Chart 4 · Return / Recovery Method</h2>
+    <div class="chart-wrapper">
+      <canvas id="methodChart"></canvas>
+    </div>
+    <p class="note">
+      Counts cover all 255 hostages (alive + bodies). Negotiated deals sometimes included
+      both living hostages and remains of those murdered in captivity.
+    </p>
+  </div>
+
+  <!-- CHART 5: Age comparison -->
+  <div class="chart-section">
+    <h2>Chart 5 · Age at Kidnapping — Alive vs. Murdered</h2>
+    <div class="chart-wrapper">
+      <canvas id="ageChart"></canvas>
+    </div>
+    <p class="note">
+      Children (0–17) had a significantly higher survival rate relative to their share of all hostages.
+      Young adults (18–30) account for the largest share of those murdered.
+    </p>
+  </div>
+
+  <!-- CHART 6: Gender breakdown -->
+  <div class="chart-section">
+    <h2>Chart 6 · Gender — Alive Returned vs. Murdered</h2>
+    <div class="chart-wrapper">
+      <canvas id="genderChart"></canvas>
+    </div>
+    <p class="note">
+      Men were murdered at a far higher rate than women (75 of 87 bodies recovered were male).
+      Early ceasefire deals prioritised women and children.
+    </p>
+  </div>
+
+  <!-- CHART 7: Nationality -->
+  <div class="chart-section">
+    <h2>Chart 7 · Nationality of Hostages Returned Alive (n=168)</h2>
+    <div class="chart-wrapper tall">
+      <canvas id="nationalityChart"></canvas>
+    </div>
+    <p class="note">
+      Israeli-[country] labels indicate dual nationals. Thailand's 28 were agricultural workers
+      in the area. Filipino, Russian, and other foreign workers were also taken.
+    </p>
+  </div>
+
+  <!-- CHART 8: Deals breakdown -->
+  <div class="chart-section">
+    <h2>Chart 8 · Alive vs. Bodies per Deal / Method</h2>
+    <div class="chart-wrapper tall">
+      <canvas id="dealBreakdownChart"></canvas>
+    </div>
+    <p class="note">
+      Estimated alive/body split within each deal or recovery method.
+      IDF military operations recovered both living hostages (6 confirmed) and many bodies.
+    </p>
+  </div>
+
+</div><!-- end charts-grid -->
+
+
+<footer>
+  Data: Hope for Hostages (hopeforhostages.com) · Public news reporting · Wikipedia ·
+  Visualization created for educational purposes · As of January 26, 2026
+</footer>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════ -->
+<script>
+
+/* ═══════════════════════════════════════════
+   MAP 1 — WORLD NATIONALITIES
+═══════════════════════════════════════════ */
+const worldMap = L.map('worldMap').setView([20, 15], 2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  maxZoom: 10
+}).addTo(worldMap);
+
+const nationalityMarkers = [
+  {
+    name: 'Israel',
+    lat: 31.5, lng: 34.75,
+    count: 79,
+    type: 'primary',
+    color: '#2563eb',
+    detail: 'Primary Israeli nationals: 79 returned alive'
+  },
+  {
+    name: 'Thailand',
+    lat: 15.87, lng: 100.99,
+    count: 28,
+    type: 'worker',
+    color: '#d97706',
+    detail: 'Thai agricultural workers: 28 returned alive'
+  },
+  {
+    name: 'Argentina',
+    lat: -34.6, lng: -58.4,
+    count: 17,
+    type: 'dual',
+    color: '#dc2626',
+    detail: 'Israeli-Argentine dual nationals: 17 returned alive'
+  },
+  {
+    name: 'Germany',
+    lat: 51.17, lng: 10.45,
+    count: 12,
+    type: 'dual',
+    color: '#dc2626',
+    detail: 'Israeli-German dual nationals: 12 returned alive'
+  },
+  {
+    name: 'United States',
+    lat: 38.9, lng: -95.7,
+    count: 8,
+    type: 'dual',
+    color: '#dc2626',
+    detail: 'Israeli-American dual nationals: 8 returned alive'
+  },
+  {
+    name: 'France',
+    lat: 46.2, lng: 2.2,
+    count: 4,
+    type: 'dual',
+    color: '#dc2626',
+    detail: 'Israeli-French dual nationals: ~4 returned alive'
+  },
+  {
+    name: 'Russia',
+    lat: 55.75, lng: 37.6,
+    count: 4,
+    type: 'dual',
+    color: '#dc2626',
+    detail: 'Israeli-Russian dual nationals: ~4 returned alive'
+  },
+  {
+    name: 'United Kingdom',
+    lat: 51.5, lng: -0.12,
+    count: 3,
+    type: 'dual',
+    color: '#dc2626',
+    detail: 'Israeli-British dual nationals: ~3 returned alive (incl. Emily Damari)'
+  },
+  {
+    name: 'Philippines',
+    lat: 12.8, lng: 121.8,
+    count: 2,
+    type: 'worker',
+    color: '#d97706',
+    detail: 'Filipino caregivers: ~2 returned alive'
+  },
+  {
+    name: 'Nepal',
+    lat: 28.4, lng: 84.1,
+    count: 3,
+    type: 'worker',
+    color: '#d97706',
+    detail: 'Nepali workers: ~3 returned alive'
+  },
+  {
+    name: 'Tanzania',
+    lat: -6.4, lng: 34.9,
+    count: 1,
+    type: 'worker',
+    color: '#d97706',
+    detail: 'Tanzanian worker: 1 returned alive (Joshua Loitu Mollel — body recovered)'
+  }
+];
+
+nationalityMarkers.forEach(n => {
+  const radius = Math.max(8, Math.sqrt(n.count) * 9);
+  L.circleMarker([n.lat, n.lng], {
+    radius,
+    fillColor: n.color,
+    color: '#fff',
+    weight: 2,
+    opacity: 1,
+    fillOpacity: 0.78
+  })
+  .bindPopup(
+    `<b>${n.name}</b><br>${n.detail}`
+  )
+  .addTo(worldMap);
+});
+
+
+/* ═══════════════════════════════════════════
+   MAP 2 — SOUTHERN ISRAEL SITES
+═══════════════════════════════════════════ */
+const israelMap = L.map('israelMap').setView([31.41, 34.50], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  maxZoom: 16
+}).addTo(israelMap);
+
+// Approximate Gaza–Israel border line
+L.polyline([
+  [31.215, 34.365], [31.365, 34.415], [31.515, 34.455], [31.600, 34.490]
+], { color: '#374151', dashArray: '6 5', weight: 2, opacity: 0.7 })
+.bindTooltip('Gaza–Israel Border (approximate)')
+.addTo(israelMap);
+
+// GAZA label
+L.marker([31.33, 34.40], {
+  icon: L.divIcon({
+    className: '',
+    html: '<span style="font-size:13px;font-weight:700;color:#374151;background:rgba(255,255,255,0.7);padding:2px 4px;border-radius:3px">GAZA STRIP →</span>',
+    iconAnchor: [60, 10]
+  })
+}).addTo(israelMap);
+
+const kidnappingSites = [
+  {
+    name: 'Kibbutz Nir Oz',
+    lat: 31.285, lng: 34.422,
+    count: 80,
+    type: 'kibbutz',
+    color: '#dc2626',
+    note: 'Hardest-hit community: ~80 hostages taken, roughly 25% of the entire kibbutz population. Included the Bibas family.'
+  },
+  {
+    name: 'Nova (Supernova) Music Festival',
+    lat: 31.351, lng: 34.481,
+    count: 40,
+    type: 'festival',
+    color: '#f59e0b',
+    note: 'Open-air festival near Re\'im; ~40 young people taken hostage, hundreds killed at the site.'
+  },
+  {
+    name: 'Kibbutz Be\'eri',
+    lat: 31.384, lng: 34.485,
+    count: 30,
+    type: 'kibbutz',
+    color: '#dc2626',
+    note: 'Site of one of the largest massacres: ~30 hostages taken alongside ~130 killed.'
+  },
+  {
+    name: 'Kibbutz Kfar Aza',
+    lat: 31.481, lng: 34.517,
+    count: 22,
+    type: 'kibbutz',
+    color: '#dc2626',
+    note: '~22 hostages taken. Community suffered severe losses.'
+  },
+  {
+    name: 'Kibbutz Nahal Oz',
+    lat: 31.491, lng: 34.523,
+    count: 8,
+    type: 'kibbutz',
+    color: '#dc2626',
+    note: '~8 hostages taken, including soldiers from the nearby IDF base.'
+  },
+  {
+    name: 'Kibbutz Alumim',
+    lat: 31.327, lng: 34.392,
+    count: 6,
+    type: 'kibbutz',
+    color: '#dc2626',
+    note: '~6 hostages taken from this community.'
+  },
+  {
+    name: 'Kibbutz Re\'im',
+    lat: 31.368, lng: 34.459,
+    count: 5,
+    type: 'kibbutz',
+    color: '#dc2626',
+    note: '~5 hostages taken. Also the location of the Nova festival grounds.'
+  },
+  {
+    name: 'Sderot',
+    lat: 31.524, lng: 34.594,
+    count: 10,
+    type: 'city',
+    color: '#7c3aed',
+    note: 'Several hostages taken from this city close to the Gaza border.'
+  },
+  {
+    name: 'Other border communities',
+    lat: 31.430, lng: 34.455,
+    count: 54,
+    type: 'city',
+    color: '#7c3aed',
+    note: 'Remaining hostages taken from Kibbutz Kissufim, Yad Mordechai, Nir Yitzhak, Holit, and other southern communities.'
+  }
+];
+
+const siteColors = { kibbutz: '#dc2626', festival: '#f59e0b', city: '#7c3aed' };
+
+kidnappingSites.forEach(site => {
+  const radius = Math.max(8, Math.sqrt(site.count) * 4.2);
+  L.circleMarker([site.lat, site.lng], {
+    radius,
+    fillColor: siteColors[site.type],
+    color: '#fff',
+    weight: 2,
+    opacity: 1,
+    fillOpacity: 0.82
+  })
+  .bindPopup(
+    `<b>${site.name}</b><br>
+     <span style="font-size:1.1em;font-weight:bold">~${site.count} hostages taken</span><br>
+     <i style="color:#555">${site.note}</i>`
+  )
+  .bindTooltip(`${site.name} (~${site.count})`, { sticky: true })
+  .addTo(israelMap);
+});
+
+
+/* ═══════════════════════════════════════════
+   CHART COLORS
+═══════════════════════════════════════════ */
+const C_ALIVE  = '#16a34a';
+const C_BODY   = '#9ca3af';
+const C_MURDER = '#dc2626';
+const C_DEAL   = '#d97706';
+const C_IDF    = '#2563eb';
+const C_PURPLE = '#7c3aed';
+
+
+/* ═══════════════════════════════════════════
+   CHART 1 — MONTHLY TIMELINE BAR
+═══════════════════════════════════════════ */
+const months = [
+  'Oct 2023','Nov 2023','Dec 2023','Jan 2024','Feb 2024','Mar 2024',
+  'Apr 2024','May 2024','Jun 2024','Jul 2024','Aug 2024','Sep 2024',
+  'Oct 2024','Nov 2024','Dec 2024','Jan 2025','Feb 2025','Mar 2025',
+  'Apr 2025','May 2025','Jun 2025','Jul 2025','Aug 2025','Sep 2025',
+  'Oct 2025','Nov 2025','Dec 2025','Jan 2026'
+];
+
+// Monthly alive returns (sum = 168)
+const monthlyAlive = [
+   5, 99,  0,  0,  0,  0,  0,  0,  4,  0,
+   2,  0,  0,  0,  0, 11, 14,  8,  7,  7,
+   6,  3,  2,  0,  0,  0,  0,  0
+];
+
+// Monthly bodies recovered (sum = 87)
+const monthlyBodies = [
+   1,  6,  5,  2,  1,  2,  2,  2,  4,  2,
+   8,  2,  2,  2,  2,  5,  8,  6,  5,  4,
+   3,  3,  3,  2,  1,  3,  0,  1
+];
+
+new Chart(document.getElementById('timelineChart'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [
+      {
+        label: 'Returned Alive',
+        data: monthlyAlive,
+        backgroundColor: C_ALIVE,
+        borderRadius: 2
+      },
+      {
+        label: 'Bodies / Remains Recovered',
+        data: monthlyBodies,
+        backgroundColor: C_BODY,
+        borderRadius: 2
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: {
+        callbacks: {
+          footer: items => 'Total: ' + items.reduce((s, i) => s + i.parsed.y, 0)
+        }
+      }
+    },
+    scales: {
+      x: {
+        stacked: true,
+        ticks: { maxRotation: 45, font: { size: 11 } }
+      },
+      y: {
+        stacked: true,
+        title: { display: true, text: 'Number of Hostages' },
+        ticks: { stepSize: 10 }
+      }
+    }
+  }
+});
+
+
+/* ═══════════════════════════════════════════
+   CHART 2 — CUMULATIVE LINE CHART
+═══════════════════════════════════════════ */
+
+// Running sums
+function cumSum(arr) {
+  let s = 0;
+  return arr.map(v => (s += v));
+}
+
+const cumAlive  = cumSum(monthlyAlive);
+const cumBodies = cumSum(monthlyBodies);
+
+new Chart(document.getElementById('cumulativeChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      {
+        label: 'Returned Alive (cumulative)',
+        data: cumAlive,
+        borderColor: C_ALIVE,
+        backgroundColor: C_ALIVE + '22',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        borderWidth: 2.5
+      },
+      {
+        label: 'Bodies Recovered (cumulative)',
+        data: cumBodies,
+        borderColor: C_BODY,
+        backgroundColor: C_BODY + '33',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        borderWidth: 2.5,
+        borderDash: [5, 3]
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' },
+      annotation: {}
+    },
+    scales: {
+      x: {
+        ticks: { maxRotation: 45, font: { size: 11 } }
+      },
+      y: {
+        title: { display: true, text: 'Cumulative count' },
+        max: 200
+      }
+    }
+  }
+});
+
+
+/* ═══════════════════════════════════════════
+   CHART 3 — OUTCOME DONUT
+═══════════════════════════════════════════ */
+new Chart(document.getElementById('outcomeChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Returned Alive (168)', 'Murdered / Bodies Recovered (87)'],
+    datasets: [{
+      data: [168, 87],
+      backgroundColor: [C_ALIVE, C_BODY],
+      borderWidth: 3,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 12 } } },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.label}: ${ctx.parsed} (${Math.round(ctx.parsed / 255 * 100)}% of all hostages)`
+        }
+      }
+    },
+    cutout: '60%'
+  }
+});
+
+
+/* ═══════════════════════════════════════════
+   CHART 4 — RETURN METHOD (HORIZONTAL BAR)
+═══════════════════════════════════════════ */
+new Chart(document.getElementById('methodChart'), {
+  type: 'bar',
+  data: {
+    labels: [
+      'November 2023 Ceasefire Deal',
+      'IDF Military Operations',
+      'End-of-War Deal (2025)',
+      'February 2025 Phase 1 Deal',
+      'October 2023 Individual Deals'
+    ],
+    datasets: [{
+      label: 'Total Returned / Recovered',
+      data: [105, 60, 48, 38, 4],
+      backgroundColor: [C_DEAL, C_IDF, C_PURPLE, C_DEAL, C_DEAL],
+      borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.parsed.x} total (alive + bodies combined)`
+        }
+      }
+    },
+    scales: {
+      x: { title: { display: true, text: 'Hostages (alive + bodies)' } },
+      y: { ticks: { font: { size: 12 } } }
+    }
+  }
+});
+
+
+/* ═══════════════════════════════════════════
+   CHART 5 — AGE DISTRIBUTION
+═══════════════════════════════════════════ */
+new Chart(document.getElementById('ageChart'), {
+  type: 'bar',
+  data: {
+    labels: ['0–17', '18–30', '31–50', '51–70', '71+'],
+    datasets: [
+      {
+        label: 'Returned Alive',
+        data: [33, 52, 42, 20, 15],
+        backgroundColor: C_ALIVE,
+        borderRadius: 3
+      },
+      {
+        label: 'Murdered',
+        data: [2, 36, 21, 17, 11],
+        backgroundColor: C_MURDER,
+        borderRadius: 3
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'top' } },
+    scales: {
+      y: { title: { display: true, text: 'Number of Hostages' } }
+    }
+  }
+});
+
+
+/* ═══════════════════════════════════════════
+   CHART 6 — GENDER BREAKDOWN
+═══════════════════════════════════════════ */
+new Chart(document.getElementById('genderChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Men', 'Women'],
+    datasets: [
+      {
+        label: 'Returned Alive',
+        data: [88, 80],
+        backgroundColor: C_ALIVE,
+        borderRadius: 4
+      },
+      {
+        label: 'Murdered',
+        data: [75, 12],
+        backgroundColor: C_MURDER,
+        borderRadius: 4
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'top' } },
+    scales: {
+      y: { title: { display: true, text: 'Number of Hostages' } }
+    }
+  }
+});
+
+
+/* ═══════════════════════════════════════════
+   CHART 7 — NATIONALITY (HORIZONTAL BAR)
+═══════════════════════════════════════════ */
+new Chart(document.getElementById('nationalityChart'), {
+  type: 'bar',
+  data: {
+    labels: [
+      'Israeli', 'Thai', 'Israeli-Argentine',
+      'Israeli-German', 'Israeli-American',
+      'Israeli-French', 'Israeli-Russian',
+      'Israeli-British', 'Other'
+    ],
+    datasets: [{
+      label: 'Returned Alive',
+      data: [79, 28, 17, 12, 8, 4, 4, 3, 13],
+      backgroundColor: [
+        '#2563eb','#d97706','#7c3aed',
+        '#dc2626','#0891b2','#059669',
+        '#b45309','#be123c','#94a3b8'
+      ],
+      borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { title: { display: true, text: 'Returned Alive' } },
+      y: { ticks: { font: { size: 12 } } }
+    }
+  }
+});
+
+
+/* ═══════════════════════════════════════════
+   CHART 8 — ALIVE vs BODIES PER DEAL
+═══════════════════════════════════════════ */
+new Chart(document.getElementById('dealBreakdownChart'), {
+  type: 'bar',
+  data: {
+    labels: [
+      'Oct 2023\nIndividual Deals',
+      'Nov 2023\nCeasefire',
+      'Feb 2025\nPhase 1 Deal',
+      'End-of-War\nDeal (2025)',
+      'IDF Military\nOperations'
+    ],
+    datasets: [
+      {
+        label: 'Returned Alive',
+        data: [4, 99, 21, 38, 6],
+        backgroundColor: C_ALIVE,
+        borderRadius: 3
+      },
+      {
+        label: 'Bodies / Remains Recovered',
+        data: [0, 6, 17, 10, 54],
+        backgroundColor: C_BODY,
+        borderRadius: 3
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: {
+        callbacks: {
+          footer: items => 'Total: ' + items.reduce((s, i) => s + i.parsed.y, 0)
+        }
+      }
+    },
+    scales: {
+      x: { stacked: true },
+      y: {
+        stacked: true,
+        title: { display: true, text: 'Number of Hostages' }
+      }
+    }
+  }
+});
+
+</script>
+</body>
+</html>
