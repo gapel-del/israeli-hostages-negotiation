@@ -234,7 +234,7 @@
     <div class="cs">
       <div class="sec-label">Chart 4</div>
       <h2>Return / Recovery Method — All 255 Hostages</h2>
-      <div class="cw"><canvas id="c4"></canvas></div>
+      <div class="cw t"><canvas id="c4"></canvas></div>
       <p class="note">Each deal phase included both living hostages and remains of those previously murdered.</p>
     </div>
 
@@ -604,8 +604,8 @@ const MO = ['Oct 2023','Nov 2023','Dec 2023','Jan 2024','Feb 2024','Mar 2024',
   'Apr 2025','May 2025','Jun 2025','Jul 2025','Aug 2025','Sep 2025',
   'Oct 2025','Nov 2025','Dec 2025','Jan 2026'];
 
-const mA = [5,99,0,0,0,0,0,0,4,0,2,0,0,0,0,11,14,8,7,7,6,3,2,0,0,0,0,0]; // alive  sum=168
-const mB = [1,6,5,2,1,2,2,2,4,2,8,2,2,2,2,5,8,6,5,4,3,3,3,2,1,3,0,1];   // bodies sum=87
+const mA = [5,99,0,0,0,0,0,0,4,0,2,0,0,0,0,15,15,0,0,1,0,0,0,0,27,0,0,0]; // alive  sum=168
+const mB = [1,3,5,1,1,1,1,6,0,5,12,0,0,0,1,3,8,0,0,0,8,0,2,0,18,9,1,1]; // bodies sum=87
 
 function cumSum(a) { let s=0; return a.map(v=>(s+=v)); }
 const cA = cumSum(mA);
@@ -629,8 +629,9 @@ new Chart(document.getElementById('c1'), { type:'bar',
         a1:ann(1, 'Nov 2023\nCeasefire Deal', AM, 'start'),
         a2:ann(8, 'Jun 2024\nIDF Rescue',     BL, 'start'),
         a3:ann(15,'Jan 2025\nPhase 1 Deal',   PU, 'start'),
-        a4:ann(17,'End-of-War\nDeal Begins',  CY, 'end'),
-        a5:ann(27,'Last Body\nRecovered',      GY, 'end') }}},
+        a4:ann(19,'May 2025\nEdan Alexander',  OR, 'start'),
+        a5:ann(24,'Oct 2025\nEnd-of-War Deal', CY, 'start'),
+        a6:ann(27,'Jan 2026\nLast Body',       GY, 'start') }}},
     scales:{ x:{stacked:true,ticks:{maxRotation:45,font:{size:11}},grid:GR},
       y:{stacked:true,title:{display:true,text:'Number of Hostages',color:'#8b949e'},grid:GR} }}});
 
@@ -645,10 +646,11 @@ new Chart(document.getElementById('c2'), { type:'line',
     plugins:{ legend:{position:'top',labels:{usePointStyle:true,pointStyle:'circle',padding:20}},
       tooltip:{...TT},
       annotation:{ annotations:{
-        b1:ann(1, 'Nov 2023\nCeasefire', AM,'start'),
-        b2:ann(8, 'IDF Rescue\nJun 2024',BL,'start'),
-        b3:ann(15,'Phase 1\nDeal',       PU,'end'),
-        b4:ann(17,'End-of-War\nDeal',    CY,'start') }}},
+        b1:ann(1, 'Nov 2023\nCeasefire',  AM,'start'),
+        b2:ann(8, 'Jun 2024\nIDF Rescue', BL,'start'),
+        b3:ann(15,'Jan 2025\nPhase 1',    PU,'start'),
+        b4:ann(19,'May 2025\nEdan Alex.', OR,'start'),
+        b5:ann(24,'Oct 2025\nEnd-of-War', CY,'start') }}},
     scales:{ x:{ticks:{maxRotation:45,font:{size:11}},grid:GR},
       y:{max:200,title:{display:true,text:'Cumulative count',color:'#8b949e'},grid:GR} }}});
 
@@ -660,17 +662,23 @@ new Chart(document.getElementById('c3'), { type:'doughnut',
     plugins:{ legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:16}},
       tooltip:{...TT,callbacks:{label:ctx=>` ${ctx.label}: ${Math.round(ctx.parsed/255*100)}%`}} }}});
 
-/* Chart 4 — return method horizontal bar */
+/* Chart 4 — return method horizontal stacked bar (alive vs bodies) */
 new Chart(document.getElementById('c4'), { type:'bar',
   data:{ labels:['Nov 2023 Ceasefire Deal','IDF Military Operations',
-    'End-of-War Deal (2025)','Feb 2025 Phase 1 Deal','Oct 2023 Individual Deals'],
-    datasets:[{ label:'Total (alive + bodies)', data:[105,60,48,38,4],
-      backgroundColor:[AM,BL,PU,CY,OR], borderRadius:4 }]},
+    'End-of-War Deal (Oct 2025)','Feb 2025 Phase 1 Deal','Oct 2023 Individual Deals'],
+    datasets:[
+      { label:'Returned Alive', data:[99,6,38,21,4], backgroundColor:G, borderRadius:0 },
+      { label:'Bodies Recovered', data:[6,54,10,17,0], backgroundColor:GY, borderRadius:4 }
+    ]},
   options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{display:false},
-      tooltip:{...TT,callbacks:{label:ctx=>` ${ctx.parsed.x} hostages (alive + bodies combined)`}} },
-    scales:{ x:{title:{display:true,text:'Hostages (alive + bodies)',color:'#8b949e'},grid:GR},
-      y:{ticks:{font:{size:12}},grid:{display:false}} }}});
+    plugins:{ legend:{position:'top',labels:{usePointStyle:true,pointStyle:'circle',padding:16}},
+      tooltip:{...TT,callbacks:{
+        label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.x}`,
+        footer:i=>'Total: '+i.reduce((s,x)=>s+x.parsed.x,0)
+      }} },
+    scales:{
+      x:{stacked:true,title:{display:true,text:'Number of Hostages',color:'#8b949e'},grid:GR},
+      y:{stacked:true,grid:{display:false},afterFit:axis=>{axis.width=190;}} }}});
 
 /* Chart 5 — how freed (alive only) */
 new Chart(document.getElementById('c5'), { type:'doughnut',
@@ -804,7 +812,7 @@ new Chart(document.getElementById('c13'), { type:'bar',
     ],
     datasets:[{
       label:'Palestinian prisoners released per Israeli hostage',
-      data:[3, 3, 33, 61, 100],
+      data:[3, 3, 50, 61, 100],
       backgroundColor:[OR, AM, CY, PU, RD],
       borderRadius:4,
     }]
@@ -818,7 +826,7 @@ new Chart(document.getElementById('c13'), { type:'bar',
           const notes = [
             '4 Israeli hostages; ~12 Palestinians',
             '70 Israelis; 210 Palestinian prisoners\n(3 Palestinians per Israeli civilian)',
-            '~33 Israeli alive; ~1,900 Palestinians\n(average across all categories)',
+            '~38 Israeli alive; ~1,900 Palestinians\n(≈50:1 average across all categories)',
             'E.g. Feb 8: 3 Israelis; 183 Palestinians',
             '~20 living; ~2,000 Palestinians + ~360 bodies',
           ];
