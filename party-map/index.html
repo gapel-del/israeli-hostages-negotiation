@@ -432,10 +432,8 @@ function getPillHalf(x, y) {
   return getRegion(x, y) === 'international' ? 74 : 105;
 }
 
-const ARROW_GAP = 12; // arrowhead length in user-space units; used to prevent stroke/head overlap
-
-function pillEdgePoint(ax, ay, bx, by, extraGap = 0) {
-  const ph = getPillHalf(ax, ay) + extraGap;
+function pillEdgePoint(ax, ay, bx, by) {
+  const ph = getPillHalf(ax, ay);
   const dx = bx - ax, dy = by - ay;
   const len = Math.sqrt(dx * dx + dy * dy) || 1;
   return [ax + (dx / len) * ph, ay + (dy / len) * ph];
@@ -470,19 +468,19 @@ function drawEdge(parent, src, tgt, edge) {
 
     // Start/end points on pill edge pointing toward the control
     const [sx2, sy2] = pillEdgePoint(sx, sy, outX, sy);
-    const [tx2, ty2] = pillEdgePoint(tx, ty, outX, ty, ARROW_GAP);
+    const [tx2, ty2] = pillEdgePoint(tx, ty, outX, ty);
     d = `M ${sx2} ${sy2} C ${outX} ${sy} ${outX} ${ty} ${tx2} ${ty2}`;
   } else if (tgtRegion === 'international' || srcRegion === 'international') {
     // Edges to/from international row — quadratic downward curve
     const [sx2, sy2] = pillEdgePoint(sx, sy, tx, ty);
-    const [tx2, ty2] = pillEdgePoint(tx, ty, sx, sy, ARROW_GAP);
+    const [tx2, ty2] = pillEdgePoint(tx, ty, sx, sy);
     const cpx = (sx + tx) / 2;
     const cpy = (sy + ty) / 2 + 30;
     d = `M ${sx2} ${sy2} Q ${cpx} ${cpy} ${tx2} ${ty2}`;
   } else {
     // Inter-group: S-curve cubic bezier
     const [sx2, sy2] = pillEdgePoint(sx, sy, tx, ty);
-    const [tx2, ty2] = pillEdgePoint(tx, ty, sx, sy, ARROW_GAP);
+    const [tx2, ty2] = pillEdgePoint(tx, ty, sx, sy);
     const cpOffset = 160;
     const cp1x = sx2 + (tx2 > sx2 ? cpOffset : -cpOffset);
     const cp1y = sy2;
@@ -634,14 +632,14 @@ function buildDefs() {
   Object.entries(EDGE_COLORS).forEach(([r, color]) => {
     const m = svgEl('marker', {
       id: `arr-${r}`,
-      markerWidth: 14,
-      markerHeight: 10,
-      refX: 0,
-      refY: 5,
+      markerWidth: 12,
+      markerHeight: 8,
+      refX: 12,
+      refY: 4,
       orient: 'auto',
       markerUnits: 'userSpaceOnUse',
     });
-    const poly = svgEl('polygon', { points: '0 0, 14 5, 0 10', fill: color });
+    const poly = svgEl('polygon', { points: '0 0, 12 4, 0 8', fill: color });
     m.appendChild(poly);
     defs.appendChild(m);
   });
@@ -864,7 +862,7 @@ Promise.all([
       const dx = tx-sx, dy = ty-sy;
       const len = Math.sqrt(dx*dx+dy*dy)||1;
       const sx2 = sx+(dx/len)*PH, sy2 = sy+(dy/len)*PH;
-      const tx2 = tx-(dx/len)*(PH+ARROW_GAP), ty2 = ty-(dy/len)*(PH+ARROW_GAP);
+      const tx2 = tx-(dx/len)*PH,          ty2 = ty-(dy/len)*PH;
 
       // Route edges
       const srcIntl = sy > 380, tgtIntl = ty > 380;
@@ -879,8 +877,8 @@ Promise.all([
         // Intra-group (same column) — curve outward; keep control points inside viewBox
         const dir  = inIsrael ? -1 : 1;
         const outX = inIsrael ? 20 : 980;
-        const sx2g = sx + dir * PH,               sy2g = sy;
-        const tx2g = tx + dir * (PH + ARROW_GAP), ty2g = ty;
+        const sx2g = sx + dir * PH, sy2g = sy;
+        const tx2g = tx + dir * PH, ty2g = ty;
         d = `M ${sx2g} ${sy2g} C ${outX} ${sy} ${outX} ${ty} ${tx2g} ${ty2g}`;
       } else {
         // Inter-group — S-curve
