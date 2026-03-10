@@ -1,0 +1,115 @@
+episode_id	source_actor_id	target_actor_id	rel_type	strength	confidence	issue_tags	notes
+ep1	qatar	israel_exec	mediates	0.90	0.95	hostage_sequencing|truce_terms	Qatar primary shuttle mediator; approached White House after Oct 7
+ep1	qatar	hamas_doha	mediates	0.85	0.95	hostage_sequencing|prisoner_release	Qatar hosts Hamas Doha bureau; primary Hamas-side channel
+ep1	egypt	israel_exec	mediates	0.50	0.80	foreign_hostage_track	Egypt co-mediates; separate Thai track via Egypt+Qatar
+ep1	egypt	hamas_mil	mediates	0.60	0.80	foreign_hostage_track	Egyptian channel to Gaza military; Thai worker track
+ep1	us	qatar	guarantees_or_monitoring	0.85	0.90	secret_cell|coordination	Sullivan tasked McGurk+Geltzer cell; extreme secrecy demanded
+ep1	us	israel_exec	pressures	0.60	0.85	truce_terms	Burns+Barnea coordination channel
+ep1	hamas_doha	hamas_mil	mediates	0.70	0.80	hostage_sequencing	Doha bureau interfaces with Gaza military on release logistics
+ep1	hayya	hamas_doha	pressures	0.55	0.70	negotiating_positions	Hayya leads external negotiating channel
+ep1	netanyahu	israel_exec	pressures	0.80	0.90	deal_approval	Netanyahu approves or rejects; conditional extensions tied to 10/day releases
+ep1	hostage_families	israel_exec	pressures	0.50	0.85	hostage_release_priority	Civil society pressure for releases
+ep1	icrc	israel_exec	implements_transfer	0.80	0.95	hostage_handover	ICRC convoy transfer operations from day one of releases
+ep1	icrc	hamas_mil	implements_transfer	0.80	0.95	hostage_handover	ICRC receives hostages from Hamas custody
+ep1	israel_exec	hamas_mil	conflict_background	1.00	1.00	ongoing_war	Active military operations; war resumes Dec 1 2023
+ep1	foreign_govts	qatar	pressures	0.40	0.75	foreign_nationals	Thailand/Philippines/Germany seek national releases; German FM confirmed 4 nationals
+ep1	idf	israel_exec	pressures	0.60	0.85	security_constraints|resumption_readiness	IDF maintains readiness to resume; shapes extension conditions
+ep1	far_right_bloc	netanyahu	veto_or_exit_threat	0.35	0.70	coalition_stability	Coalition pressure present but less prominent in ep1
+ep2	qatar	israel_exec	mediates	0.85	0.95	phased_release|ceasefire_terms	Paris framework hammered out with Qatar PM
+ep2	qatar	hamas_doha	mediates	0.80	0.90	phased_release|prisoner_terms	Qatar relays Hamas positions; Paris meeting with Qatar PM
+ep2	egypt	israel_exec	mediates	0.70	0.90	paris_framework	Abbas Kamel co-negotiates Paris framework
+ep2	egypt	hamas_pol	mediates	0.65	0.85	phased_release	Egypt channels to Hamas political leadership
+ep2	us	israel_exec	pressures	0.70	0.90	paris_framework	Burns leads US side; Barnea Israeli counterpart
+ep2	us	qatar	guarantees_or_monitoring	0.80	0.90	framework_coordination	Burns/Barnea/Qatar PM/Kamel core channel
+ep2	hamas_pol	hamas_doha	pressures	0.60	0.75	ceasefire_permanence_demand	Hamas political demands permanent ceasefire guarantee
+ep2	hamas_doha	hamas_mil	mediates	0.60	0.75	internal_positions	Doha relays Gaza military custody holders
+ep2	hamas_hardline	hamas_mil	veto_or_exit_threat	0.55	0.70	demands_permanence	Hamas rejects Israeli counterproposal as unrealistic; internal blocking
+ep2	netanyahu	israel_exec	pressures	0.80	0.90	war_aims_constraint	Netanyahu resists war-ending framing
+ep2	idf	israel_exec	pressures	0.70	0.85	withdrawal_geometry|security	Withdrawal geometry emerging as key constraint
+ep2	far_right_bloc	netanyahu	veto_or_exit_threat	0.55	0.75	coalition_stability	Coalition veto threat grows
+ep2	hostage_families	israel_exec	pressures	0.55	0.80	hostage_release_priority
+ep2	israel_exec	hamas_mil	conflict_background	1.00	1.00	ongoing_war	War continues during framework talks
+ep3	us	israel_exec	pressures	0.85	0.95	three_phase_plan	Biden announces plan May 31; pressures Israel to accept
+ep3	us	hamas_pol	pressures	0.65	0.80	three_phase_plan	US calls on Hamas to accept UNSC-backed plan
+ep3	qatar	israel_exec	mediates	0.80	0.90	phase_one_terms
+ep3	qatar	hamas_doha	mediates	0.75	0.90	phase_one_terms
+ep3	egypt	israel_exec	mediates	0.65	0.85	implementation
+ep3	egypt	hamas_pol	mediates	0.62	0.80	implementation
+ep3	unsc	us	endorses_or_legitimizes	0.90	0.95	Resolution_2735	UNSC voted 14-0-1 for Resolution 2735 on June 10 2024
+ep3	unsc	israel_exec	endorses_or_legitimizes	0.50	0.80	Resolution_2735	Resolution urges Israel to accept plan
+ep3	unsc	hamas_pol	pressures	0.45	0.75	Resolution_2735	Resolution urges Hamas to accept; Hamas welcomed UNSC language
+ep3	hamas_pol	hamas_doha	pressures	0.60	0.80	permanent_ceasefire_demand	Hamas emphasizes permanent ceasefire; UNSC language welcomed by Hamas
+ep3	hamas_doha	hamas_mil	mediates	0.55	0.75	internal_positions
+ep3	netanyahu	israel_exec	pressures	0.80	0.90	phase_two_resistance	Israel resists permanent ceasefire framing in phase two
+ep3	idf	israel_exec	pressures	0.70	0.85	withdrawal_geometry	Full withdrawal in phase 2 contested
+ep3	far_right_bloc	netanyahu	veto_or_exit_threat	0.65	0.80	coalition_stability	Coalition veto pressure intensifies
+ep3	hostage_families	israel_exec	pressures	0.60	0.85	hostage_release_priority
+ep3	un_humanitarian	unsc	pressures	0.50	0.70	aid_access	600 trucks/day provision in plan; humanitarian pressure
+ep3	israel_exec	hamas_mil	conflict_background	1.00	1.00	ongoing_war
+ep4	us	israel_exec	pressures	0.80	0.90	bridging_proposal|corridor_compromise	US presses bridging proposals; corridor compromise attempts
+ep4	us	qatar	pressures	0.90	0.95	doha_hamas_presence	Nov 2024: US tells Qatar Hamas Doha presence no longer acceptable
+ep4	qatar	israel_exec	mediates	0.70	0.85	corridor_terms	Qatar shuttles on corridor compromises
+ep4	qatar	hamas_doha	mediates	0.72	0.85	corridor_terms|prisoner_exile	Doha bureau presence itself becomes a variable under US pressure
+ep4	egypt	israel_exec	mediates	0.75	0.90	philadelphi_corridor	Egypt rejects Israeli troop presence along Philadelphi; sensitive for Cairo
+ep4	egypt	hamas_pol	mediates	0.62	0.80	corridor_terms
+ep4	idf	israel_exec	pressures	0.88	0.95	netzarim_corridor|philadelphi_corridor	IDF demands corridor troop presence; shapes Israeli negotiating floor
+ep4	netanyahu	israel_exec	pressures	0.85	0.90	corridor_posture|coalition_constraints	Netanyahu holds corridor position; coalition constraints
+ep4	far_right_bloc	netanyahu	veto_or_exit_threat	0.85	0.90	anti_deal_veto	Strong blocking power this episode; Ben-Gvir threatens resignation
+ep4	hamas_hardline	hamas_mil	veto_or_exit_threat	0.85	0.90	reject_corridors|moving_goalposts	Hamas field leadership blocks; fears Israel moving goalposts
+ep4	hamas_doha	hamas_mil	pressures	0.50	0.70	negotiate_positions	Doha bureau constrained; presence under US threat
+ep4	hamas_pol	hamas_mil	pressures	0.52	0.70	ceasefire_first	Hamas political demands ceasefire guaranteed first
+ep4	israel_public	netanyahu	pressures	0.75	0.90	hostage_deal_demand	Mass protests and labor strike after 6 hostages recovered dead
+ep4	hostage_families	netanyahu	pressures	0.78	0.90	hostage_deal_demand	Families demand ceasefire agreement
+ep4	hostage_families	israel_exec	pressures	0.72	0.90	hostage_release_priority
+ep4	israel_exec	hamas_mil	conflict_background	1.00	1.00	ongoing_war
+ep4	egypt	us	pressures	0.55	0.80	philadelphi_corridor	Egypt opposes Israeli corridor presence; pressures US mediating position
+ep5	qatar	israel_exec	mediates	0.90	0.95	stage_one_terms|phase_two_talks	Qatar PM calls for immediate phase-two negotiations after stage one
+ep5	qatar	hamas_doha	mediates	0.87	0.95	stage_one_terms
+ep5	egypt	israel_exec	mediates	0.77	0.90	stage_one_implementation
+ep5	egypt	hamas_pol	mediates	0.72	0.85	stage_one_implementation
+ep5	us	israel_exec	guarantees_or_monitoring	0.90	0.95	stage_one_guarantee	Witkoff represents Trump; Biden-Trump transition; US monitors stage one
+ep5	us	qatar	guarantees_or_monitoring	0.85	0.90	monitoring_coordination
+ep5	hamas_doha	hamas_mil	pressures	0.70	0.85	deal_acceptance	Doha bureau presses Gaza military to implement
+ep5	hayya	hamas_doha	pressures	0.65	0.80	negotiation_positions
+ep5	hamas_pol	hamas_doha	pressures	0.55	0.75	ceasefire_continuation
+ep5	icrc	israel_exec	implements_transfer	0.90	0.95	hostage_handover|dignity_standards	ICRC calls for privacy and dignity; states degrading treatment unacceptable
+ep5	icrc	hamas_mil	implements_transfer	0.90	0.95	hostage_handover|dignity_standards	ICRC facilitates transfers; public standards statements
+ep5	far_right_bloc	netanyahu	veto_or_exit_threat	0.92	0.95	anti_deal_resignation	Ben-Gvir threatens then resigns; far-right ministers quit cabinet
+ep5	netanyahu	israel_exec	pressures	0.80	0.90	deal_management|coalition_strain	Netanyahu manages coalition strain and deal implementation
+ep5	opposition_bloc	israel_exec	pressures	0.60	0.80	deal_support	Alternative political support for deal replaces resigned coalition members
+ep5	hostage_families	israel_exec	pressures	0.82	0.90	complete_all_phases	Families demand all phases continue; watch Qatar PM calls for phase two
+ep5	israel_public	israel_exec	pressures	0.72	0.85	pro_deal	Public supports continuation of deal
+ep5	idf	israel_exec	pressures	0.60	0.80	security_compliance_monitoring	IDF monitors compliance; shapes stage-two conditions
+ep5	foreign_govts	us	pressures	0.52	0.80	dual_national_releases	US/France/Thailand press for nationals; dual citizens named for release
+ep5	foreign_govts	qatar	pressures	0.42	0.72	citizen_recovery	Thailand among those freed; bilateral track
+ep5	israel_exec	hamas_mil	conflict_background	0.70	0.90	reduced_hostilities	Ceasefire in effect; reduced but not ended conflict posture
+ep5	hamas_hardline	hamas_mil	pressures	0.42	0.65	phase_two_demands	Field leadership presses for phase-two guarantees
+ep5	un_humanitarian	egypt	pressures	0.40	0.70	aid_corridor	600 trucks/day demand; aid access as ceasefire condition
+ep6	us	israel_exec	guarantees_or_monitoring	0.95	0.95	full_ceasefire_guarantee	Witkoff/Kushner lead US side; Trump signs off; up to 200 US troops deployed to Israel
+ep6	us	hamas_pol	pressures	0.72	0.90	48_hostage_release|compliance	US presses Hamas compliance on 72-hour window
+ep6	qatar	israel_exec	mediates	0.87	0.95	final_terms|redeployment_timing	Mediators sign at Sharm el-Sheikh summit with Trump
+ep6	qatar	hamas_doha	mediates	0.85	0.95	final_terms
+ep6	egypt	israel_exec	mediates	0.77	0.90	final_ceasefire
+ep6	egypt	hamas_pol	mediates	0.72	0.90	final_ceasefire
+ep6	turkey	hamas_pol	mediates	0.62	0.80	signing_ceremony	Turkey joins as mediator/signatory at Sharm el-Sheikh with Trump
+ep6	turkey	israel_exec	mediates	0.42	0.75	signing_ceremony
+ep6	icrc	israel_exec	implements_transfer	0.90	0.95	hostage_return|remains_recovery	ICRC begins Oct 13 operations; remains recovery ongoing and uncertain
+ep6	icrc	hamas_mil	implements_transfer	0.90	0.95	hostage_return|remains_recovery	ICRC facilitates return; integrity of remains-recovery operations challenged
+ep6	intl_monitoring	israel_exec	guarantees_or_monitoring	0.82	0.90	coordination_task_force	US deploys up to 200 troops to Israel for task force; no troops into Gaza
+ep6	intl_monitoring	hamas_mil	guarantees_or_monitoring	0.52	0.75	stabilization_monitoring
+ep6	eu_mission	israel_exec	guarantees_or_monitoring	0.62	0.85	rafah_crossing_supervision	EU delegation supervises Rafah crossing per agreement terms
+ep6	eu_mission	hamas_pol	guarantees_or_monitoring	0.52	0.80	rafah_crossing_supervision	Israeli approval + EU supervision of Rafah movement per deal
+ep6	hamas_doha	hamas_mil	implements_transfer	0.77	0.90	hostage_release_coordination	Doha bureau coordinates with Gaza on 48-hostage release
+ep6	hayya	hamas_doha	pressures	0.72	0.85	remains_recovery_timeline	Remains recovery may take longer than living hostages; uncertainty flagged
+ep6	hostage_coord	israel_exec	implements_transfer	0.82	0.90	remains_location_intl	Hirsch (hostage coordinator) says international force will help locate remains Hamas cannot find
+ep6	hostage_coord	intl_monitoring	guarantees_or_monitoring	0.72	0.85	remains_location_coordination	Coordination between Hirsch office and intl task force
+ep6	netanyahu	israel_exec	pressures	0.80	0.90	deal_approval	Cabinet approved deal; Netanyahu manages coalition and international dynamics
+ep6	far_right_bloc	netanyahu	veto_or_exit_threat	0.62	0.85	anti_deal_pressure	Coalition pressure continues; Ben-Gvir etc. still active
+ep6	hostage_families	israel_exec	pressures	0.82	0.90	complete_releases|remains_recovery	Families advocate for all releases and remains return
+ep6	foreign_govts	us	pressures	0.52	0.80	citizen_releases	Dual nationals (US/France etc.) recovered; foreign govts pressure US
+ep6	diaspora_pro_israel	netanyahu	pressures	0.32	0.70	political_support	AIPAC/J Street/ADL respond to agreement; political legitimacy environment
+ep6	diaspora_pro_pal	hamas_pol	endorses_or_legitimizes	0.22	0.62	political_legitimacy	CAIR and others respond; pro-Palestinian diaspora advocacy active
+ep6	un_humanitarian	us	pressures	0.52	0.75	aid_access	600 trucks/day provision; humanitarian access via Rafah
+ep6	unsc	us	endorses_or_legitimizes	0.62	0.80	legitimacy_framework	UNSC framework provides legitimacy foundation for deal
+ep6	israel_exec	hamas_mil	conflict_background	0.30	0.95	ending_hostilities	Ceasefire in effect; hostilities ending
+ep6	hamas_hardline	hamas_mil	pressures	0.32	0.65	remains_recovery_uncertainty	Field leadership uncertainty on remains locations

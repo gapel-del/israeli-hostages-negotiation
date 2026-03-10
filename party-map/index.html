@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Israeli–Hamas Hostage Negotiation Party Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:'Inter',sans-serif;font-size:14px;min-height:100vh;display:flex;flex-direction:column}
+a{color:#58a6ff}
+#header{background:#161b22;border-bottom:1px solid #30363d;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+#header h1{font-size:16px;font-weight:600;white-space:nowrap}
+#controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:1}
+label{font-size:12px;color:#8b949e;white-space:nowrap}
+select,input[type=range]{background:#0d1117;border:1px solid #30363d;color:#e6edf3;border-radius:6px;padding:4px 8px;font-family:inherit;font-size:13px;cursor:pointer}
+input[type=range]{padding:0;width:160px;accent-color:#58a6ff}
+button{background:#21262d;border:1px solid #30363d;color:#e6edf3;border-radius:6px;padding:6px 14px;font-family:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+button:hover{background:#30363d}
+#episode-info{background:#161b22;border-bottom:1px solid #30363d;padding:10px 20px}
+#ep-title{font-weight:600;font-size:14px;margin-bottom:2px}
+#ep-dates{font-size:12px;color:#8b949e;margin-bottom:4px}
+#ep-summary{font-size:12px;color:#c9d1d9;line-height:1.5;max-width:900px}
+#ep-counts{font-size:11px;color:#8b949e;margin-top:3px;font-style:italic}
+#main{display:flex;flex:1;overflow:hidden}
+#svg-container{flex:1;overflow:auto;position:relative}
+svg#map{display:block;width:100%;height:auto}
+#sidebar{width:260px;background:#161b22;border-left:1px solid #30363d;overflow-y:auto;padding:14px;flex-shrink:0}
+#sidebar h2{font-size:13px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.legend-section{margin-bottom:18px}
+.legend-section h3{font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;border-top:1px solid #30363d;padding-top:6px}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.legend-line{width:28px;height:3px;flex-shrink:0;border-radius:2px}
+.legend-arrow{width:28px;height:10px;flex-shrink:0;display:flex;align-items:center}
+#tooltip{position:fixed;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px;max-width:280px;font-size:12px;pointer-events:none;z-index:1000;display:none;line-height:1.5;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+#tooltip .tt-label{font-weight:600;font-size:13px;margin-bottom:4px}
+#tooltip .tt-meta{color:#8b949e;margin-bottom:6px}
+#tooltip .tt-section{font-size:11px;text-transform:uppercase;color:#8b949e;margin-top:6px;margin-bottom:2px;letter-spacing:.04em}
+#tooltip .tt-obj{color:#3fb950}
+#tooltip .tt-red{color:#f85149}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <h1>Hostage Negotiation Party Map</h1>
+  <div id="controls">
+    <label>Episode</label>
+    <select id="ep-select"></select>
+    <input type="range" id="ep-slider" min="0" max="5" step="1" value="0"/>
+    <button id="export-btn">Export current view</button>
+  </div>
+</div>
+
+<div id="episode-info">
+  <div id="ep-title"></div>
+  <div id="ep-dates"></div>
+  <div id="ep-summary"></div>
+  <div id="ep-counts"></div>
+</div>
+
+<div id="main">
+  <div id="svg-container">
+    <svg id="map" viewBox="0 0 960 700" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+  <div id="sidebar">
+    <h2>Legend</h2>
+    <div class="legend-section">
+      <h3>Node Types</h3>
+      <div id="node-legend"></div>
+    </div>
+    <div class="legend-section">
+      <h3>Edge Types</h3>
+      <div id="edge-legend"></div>
+    </div>
+    <div class="legend-section">
+      <h3>Edge Style</h3>
+      <div class="legend-item"><svg width="28" height="10" style="flex-shrink:0"><line x1="0" y1="5" x2="28" y2="5" stroke="#8b949e" stroke-width="2"/></svg><span>Solid = confidence ≥ 0.6</span></div>
+      <div class="legend-item"><svg width="28" height="10" style="flex-shrink:0"><line x1="0" y1="5" x2="28" y2="5" stroke="#8b949e" stroke-width="2" stroke-dasharray="4,3"/></svg><span>Dashed = confidence &lt; 0.6</span></div>
+      <div class="legend-item" style="margin-top:4px;font-size:11px;color:#8b949e">Thickness = strength × 5</div>
+    </div>
+  </div>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+const COLOR_KEYS = {
+  israel_primary:    '#388bfd',
+  israel_individual: '#58a6ff',
+  israel_faction:    '#1f6feb',
+  israel_external:   '#0d419d',
+  hamas_primary:     '#da3633',
+  hamas_individual:  '#ff7b72',
+  hamas_faction:     '#b91c1c',
+  hamas_external:    '#7f1d1d',
+  mediator:          '#e3b341',
+  international:     '#bc8cff',
+};
+
+const COLOR_KEY_LABELS = {
+  israel_primary:    'Israel – Primary Party',
+  israel_individual: 'Israel – Individual',
+  israel_faction:    'Israel – Internal Faction',
+  israel_external:   'Israel – External Stakeholder',
+  hamas_primary:     'Hamas – Primary Party',
+  hamas_individual:  'Hamas – Individual',
+  hamas_faction:     'Hamas – Internal Faction',
+  hamas_external:    'Hamas – External Stakeholder',
+  mediator:          'Mediator',
+  international:     'International',
+};
+
+const EDGE_COLORS = {
+  mediates:                 '#e3b341',
+  pressures:                '#fb8500',
+  veto_or_exit_threat:      '#f85149',
+  implements_transfer:      '#3fb950',
+  endorses_or_legitimizes:  '#bc8cff',
+  conflict_background:      '#6e7681',
+  guarantees_or_monitoring: '#39d3f2',
+};
+
+const EDGE_LABELS = {
+  mediates:                 'Mediates',
+  pressures:                'Pressures',
+  veto_or_exit_threat:      'Veto / Exit Threat',
+  implements_transfer:      'Implements Transfer',
+  endorses_or_legitimizes:  'Endorses / Legitimizes',
+  conflict_background:      'Conflict Background',
+  guarantees_or_monitoring: 'Guarantees / Monitoring',
+};
+
+const ACTOR_EP_INFO = {
+  ep1: {
+    israel_exec:   { obj: ['Secure releases while preserving ability to resume operations','Conditional truce extensions at 10 hostages/day'], red: ['No permanent ceasefire commitment','Must maintain operational flexibility'] },
+    qatar:         { obj: ['Broker truce and sequence releases','Maintain channel secrecy per both sides'], red: ['Extreme secrecy demanded by Qatar and Israel'] },
+    us:            { obj: ['Support mediation via secret cell (McGurk/Geltzer)','Coordinate Burns–Barnea track'], red: [] },
+    hamas_mil:     { obj: ['Secure prisoner releases and humanitarian relief','Maintain custody leverage'], red: ['No Israeli resumption commitment in exchange framework'] },
+    hamas_doha:    { obj: ['Interface with mediators on release logistics','Manage multi-track (Thai) bargaining'], red: [] },
+    icrc:          { obj: ['Execute neutral transfer operations','Uphold ICRC standards for handovers'], red: [] },
+    foreign_govts: { obj: ['Recover own nationals (Thailand/Philippines/Germany)','Bilateral track via Egypt+Qatar'], red: [] },
+    netanyahu:     { obj: ['Approve conditional extensions','Balance public pressure and war aims'], red: ['Permanent ceasefire language'] },
+  },
+  ep2: {
+    israel_exec:    { obj: ['Negotiate phased release starting with civilians','Resist war-ending framing'], red: ['No "permanent ceasefire" guarantee','Withdrawal geometry contested'] },
+    qatar:          { obj: ['Forge Paris framework draft','Guarantee sequencing of hostage categories'], red: [] },
+    egypt:          { obj: ['Co-negotiate Paris framework (Kamel)','Maintain Egyptian channel to Hamas political'], red: [] },
+    us:             { obj: ['Convert framework into implementable agreement','Support Burns–Barnea–Qatar PM channel'], red: [] },
+    hamas_pol:      { obj: ['Demand guarantee of permanent end to hostilities','Women/children/elderly first stage'], red: ['Any deal that does not end war','Prisoner count below 700–1,000'] },
+    hamas_hardline: { obj: ['Ensure Gaza military retains leverage','Block deal without permanent ceasefire'], red: ['Israeli continued military presence'] },
+    idf:            { obj: ['Shape withdrawal geometry constraints','Ensure troop posture preserved'], red: ['Withdrawal commitments that reduce security'] },
+    netanyahu:      { obj: ['Keep war aims intact','Prevent coalition collapse'], red: ['War-ending framing in deal text'] },
+  },
+  ep3: {
+    israel_exec:    { obj: ['Accept phase one while resisting phase two permanence framing'], red: ['Permanent ceasefire language in phase two','Full withdrawal commitment'] },
+    us:             { obj: ['Get UNSC endorsement as leverage','Convert three-phase plan into Hamas acceptance'], red: [] },
+    unsc:           { obj: ['Endorse plan to increase pressure on Hamas','Provide international legitimacy'], red: [] },
+    hamas_pol:      { obj: ['Use UNSC language to lock in permanent ceasefire framing','Secure complete withdrawal'], red: ['Phase two ambiguity on end state'] },
+    qatar:          { obj: ['Translate UNSC-backed plan into Hamas acceptance','Maintain credibility as mediator'], red: [] },
+    netanyahu:      { obj: ['Accept phase one only','Resist phase two commitments'], red: ['Any binding permanent ceasefire'] },
+    idf:            { obj: ['Preserve withdrawal flexibility','Shape phase two conditions'], red: ['Full withdrawal commitment in phase two'] },
+    far_right_bloc: { obj: ['Block deal that ends war without security guarantees'], red: ['Permanent ceasefire','Hamas remaining in power'] },
+  },
+  ep4: {
+    israel_exec:    { obj: ['Maintain corridor troop presence','Seek prisoner exile terms'], red: ['No Israeli troops in Netzarim/Philadelphi corridors'] },
+    idf:            { obj: ['Retain Netzarim and Philadelphi corridor presence','Security rationale for troop presence'], red: ['Withdrawal from corridors'] },
+    hamas_mil:      { obj: ['Reject Israeli troop presence in corridors','Prevent "moving goalposts" on text'], red: ['Any Israeli troop presence in Gaza corridors','Prisoner exile conditions'] },
+    hamas_hardline: { obj: ['Block deal that leaves Israel in corridors','Guard against concession precedent'], red: ['Israeli corridor presence','Last-minute Israeli changes to agreed text'] },
+    egypt:          { obj: ['Mediate corridor compromise','Reject Israeli Philadelphi presence (Egyptian strategic interest)'], red: ['Israeli troops along Philadelphi Corridor'] },
+    us:             { obj: ['Press bridging proposals','After Nov 2024 rejection: restructure Hamas channel via Qatar pressure'], red: [] },
+    israel_public:  { obj: ['Demand hostage deal over corridor politics'], red: [] },
+    far_right_bloc: { obj: ['Block any deal that sacrifices corridor security'], red: ['Leaving corridors','Deal that ends Hamas siege'] },
+  },
+  ep5: {
+    israel_exec:    { obj: ['Execute stage one fully','Negotiate stage two from ceasefire position'], red: ['Stage two terms that permanently end military option'] },
+    hamas_mil:      { obj: ['Complete stage one releases','Secure stage two guarantee of permanent ceasefire'], red: ['Any stage two that leaves Israeli forces in Gaza'] },
+    icrc:           { obj: ['Execute neutral transfers with dignity','Enforce ICRC standards publicly'], red: ['Degrading treatment of hostages during handover'] },
+    far_right_bloc: { obj: ['Collapse the deal','Veto any extension to stage two that recognizes Hamas'], red: ['Any deal that keeps Hamas in power'] },
+    us:             { obj: ['Monitor stage one compliance','Facilitate transition to stage two'], red: [] },
+    foreign_govts:  { obj: ['Recover dual nationals (US/France/Thailand)','Named individuals secured in Feb batches'], red: [] },
+    opposition_bloc:{ obj: ['Provide political support for deal to replace resigned coalition members'], red: [] },
+    qatar:          { obj: ['Execute stage one','Push immediately for phase two negotiations'], red: [] },
+  },
+  ep6: {
+    israel_exec:         { obj: ['Execute full hostage release within 72-hr window','Accept international monitoring'], red: ['Hamas returning to power in Gaza postwar'] },
+    hamas_mil:           { obj: ['Release 20 living hostages and remains','Secure ~2,000 Palestinian releases and fighter bodies'], red: ['Deportation conditions for released prisoners','Postwar governance that excludes Hamas'] },
+    us:                  { obj: ['Deploy coordination task force to Israel','Guarantee full execution','No US troops into Gaza'], red: [] },
+    icrc:                { obj: ['Facilitate Oct 13 operations','Handle remains recovery with integrity'], red: ['Integrity compromises in remains operations'] },
+    intl_monitoring:     { obj: ['Support stabilization from Israeli territory','Locate remains Hamas cannot find (with Hirsch office)'], red: ['Deployment into Gaza'] },
+    eu_mission:          { obj: ['Supervise Rafah crossing per agreement','Approve movement per terms'], red: [] },
+    turkey:              { obj: ['Sign agreement at Sharm el-Sheikh','Strengthen mediator standing'], red: [] },
+    diaspora_pro_israel: { obj: ['Shape international political legitimacy of deal','AIPAC/ADL/J Street respond publicly'], red: [] },
+  },
+};
+
+function parseTSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split('\t').map(h => h.trim());
+  return lines.slice(1).map(line => {
+    const cells = line.split('\t');
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (cells[i] || '').trim(); });
+    return obj;
+  }).filter(row => Object.values(row).some(v => v !== ''));
+}
+
+const NS = 'http://www.w3.org/2000/svg';
+
+let actors = {};
+let actorsList = [];
+let episodes = [];
+let allEdges = [];
+let currentEpIndex = 0;
+
+async function loadData() {
+  const [actorsTSV, episodesTSV, edgesTSV] = await Promise.all([
+    fetch('actors.tsv').then(r => r.text()),
+    fetch('episodes.tsv').then(r => r.text()),
+    fetch('edges.tsv').then(r => r.text()),
+  ]);
+  actorsList = parseTSV(actorsTSV);
+  actorsList.forEach(a => { actors[a.actor_id] = a; });
+  episodes = parseTSV(episodesTSV);
+  allEdges = parseTSV(edgesTSV);
+}
+
+function offsetPoint(fx, fy, tx, ty, r) {
+  const dx = tx - fx, dy = ty - fy;
+  const len = Math.sqrt(dx*dx + dy*dy) || 1;
+  return [fx + (dx/len)*r, fy + (dy/len)*r];
+}
+
+function buildSVG(epId) {
+  const svgEl = document.getElementById('map');
+  while (svgEl.firstChild) svgEl.removeChild(svgEl.firstChild);
+
+  // defs
+  const defs = document.createElementNS(NS, 'defs');
+  Object.entries(EDGE_COLORS).forEach(([type, color]) => {
+    const marker = document.createElementNS(NS, 'marker');
+    marker.setAttribute('id', `arrow-${type}`);
+    marker.setAttribute('markerWidth', '8');
+    marker.setAttribute('markerHeight', '6');
+    marker.setAttribute('refX', '7');
+    marker.setAttribute('refY', '3');
+    marker.setAttribute('orient', 'auto');
+    marker.setAttribute('markerUnits', 'strokeWidth');
+    const poly = document.createElementNS(NS, 'polygon');
+    poly.setAttribute('points', '0 0, 8 3, 0 6');
+    poly.setAttribute('fill', color);
+    marker.appendChild(poly);
+    defs.appendChild(marker);
+  });
+  svgEl.appendChild(defs);
+
+  // background
+  const bg = document.createElementNS(NS, 'rect');
+  bg.setAttribute('width', '960');
+  bg.setAttribute('height', '700');
+  bg.setAttribute('fill', '#0d1117');
+  svgEl.appendChild(bg);
+
+  // region labels
+  const regions = [
+    { x: 175, y: 25, text: 'ISRAEL', color: '#1f6feb' },
+    { x: 480, y: 25, text: 'MEDIATORS', color: '#9e8a2e' },
+    { x: 840, y: 25, text: 'HAMAS', color: '#b91c1c' },
+  ];
+  regions.forEach(r => {
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', r.x);
+    t.setAttribute('y', r.y);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('fill', r.color);
+    t.setAttribute('font-size', '11');
+    t.setAttribute('font-family', 'Inter, sans-serif');
+    t.setAttribute('font-weight', '600');
+    t.setAttribute('letter-spacing', '2');
+    t.setAttribute('opacity', '0.5');
+    t.textContent = r.text;
+    svgEl.appendChild(t);
+  });
+
+  // edges for this episode
+  const epEdges = allEdges.filter(e => e.episode_id === epId);
+
+  // build reverse-edge lookup for curve offset
+  const edgeSet = new Set(epEdges.map(e => `${e.source_actor_id}|${e.target_actor_id}`));
+
+  const edgeGroup = document.createElementNS(NS, 'g');
+  edgeGroup.setAttribute('id', 'edges');
+  svgEl.appendChild(edgeGroup);
+
+  epEdges.forEach(edge => {
+    const src = actors[edge.source_actor_id];
+    const tgt = actors[edge.target_actor_id];
+    if (!src || !tgt) return;
+
+    const sx = parseFloat(src.x), sy = parseFloat(src.y);
+    const tx = parseFloat(tgt.x), ty = parseFloat(tgt.y);
+    const r1 = parseFloat(src.size_base) + 2;
+    const r2 = parseFloat(tgt.size_base) + 2;
+    const strength = parseFloat(edge.strength) || 0.5;
+    const confidence = parseFloat(edge.confidence) || 1.0;
+
+    // check if reverse edge exists
+    const hasReverse = edgeSet.has(`${edge.target_actor_id}|${edge.source_actor_id}`);
+    const offset = hasReverse ? 28 : 0;
+
+    // midpoint + perpendicular offset for curve
+    const mx = (sx + tx) / 2, my = (sy + ty) / 2;
+    const dx = tx - sx, dy = ty - sy;
+    const len = Math.sqrt(dx*dx + dy*dy) || 1;
+    const cpx = mx + (-dy / len) * offset;
+    const cpy = my + (dx / len) * offset;
+
+    // offset start/end points by node radius
+    const [sx2, sy2] = offsetPoint(cpx, cpy, sx, sy, -(r1));
+    const [tx2, ty2] = offsetPoint(cpx, cpy, tx, ty, -(r2));
+
+    // actual start offset from node
+    const [startX, startY] = offsetPoint(sx, sy, tx, ty, r1);
+    const [endX, endY]     = offsetPoint(tx, ty, sx, sy, r2 + 5);
+
+    const color = EDGE_COLORS[edge.rel_type] || '#8b949e';
+    const strokeW = Math.max(1, strength * 5);
+
+    const path = document.createElementNS(NS, 'path');
+    let d;
+    if (offset === 0) {
+      d = `M ${startX} ${startY} L ${endX} ${endY}`;
+    } else {
+      d = `M ${startX} ${startY} Q ${cpx} ${cpy} ${endX} ${endY}`;
+    }
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', color);
+    path.setAttribute('stroke-width', strokeW);
+    path.setAttribute('opacity', '0.75');
+    path.setAttribute('marker-end', `url(#arrow-${edge.rel_type})`);
+    if (confidence < 0.6) {
+      path.setAttribute('stroke-dasharray', `${strokeW*3} ${strokeW*2}`);
+    }
+    path.setAttribute('data-src', edge.source_actor_id);
+    path.setAttribute('data-tgt', edge.target_actor_id);
+    path.setAttribute('data-rel', edge.rel_type);
+    path.setAttribute('data-notes', edge.notes || '');
+    edgeGroup.appendChild(path);
+  });
+
+  // nodes
+  const nodeGroup = document.createElementNS(NS, 'g');
+  nodeGroup.setAttribute('id', 'nodes');
+  svgEl.appendChild(nodeGroup);
+
+  actorsList.forEach(actor => {
+    const x = parseFloat(actor.x), y = parseFloat(actor.y);
+    const r = parseFloat(actor.size_base);
+    const color = COLOR_KEYS[actor.color_key] || '#8b949e';
+
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('cursor', 'pointer');
+    g.setAttribute('data-id', actor.actor_id);
+
+    const circle = document.createElementNS(NS, 'circle');
+    circle.setAttribute('cx', x);
+    circle.setAttribute('cy', y);
+    circle.setAttribute('r', r);
+    circle.setAttribute('fill', color);
+    circle.setAttribute('stroke', '#0d1117');
+    circle.setAttribute('stroke-width', '2');
+    g.appendChild(circle);
+
+    // label
+    const text = document.createElementNS(NS, 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', y + r + 11);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', '#c9d1d9');
+    text.setAttribute('font-size', '9.5');
+    text.setAttribute('font-family', 'Inter, sans-serif');
+    text.setAttribute('pointer-events', 'none');
+
+    // wrap long labels
+    const words = actor.label.split(' ');
+    let line = '';
+    const maxW = 80;
+    let lineCount = 0;
+    words.forEach((word, i) => {
+      const testLine = line ? line + ' ' + word : word;
+      if (testLine.length > 12 && line && i > 0) {
+        const tspan = document.createElementNS(NS, 'tspan');
+        tspan.setAttribute('x', x);
+        tspan.setAttribute('dy', lineCount === 0 ? '0' : '10');
+        tspan.textContent = line;
+        text.appendChild(tspan);
+        line = word;
+        lineCount++;
+      } else {
+        line = testLine;
+      }
+    });
+    if (line) {
+      const tspan = document.createElementNS(NS, 'tspan');
+      tspan.setAttribute('x', x);
+      tspan.setAttribute('dy', lineCount === 0 ? '0' : '10');
+      tspan.textContent = line;
+      text.appendChild(tspan);
+    }
+
+    g.appendChild(text);
+
+    g.addEventListener('mouseenter', (e) => showTooltip(e, actor, epId));
+    g.addEventListener('mousemove', moveTooltip);
+    g.addEventListener('mouseleave', hideTooltip);
+
+    nodeGroup.appendChild(g);
+  });
+}
+
+function showTooltip(e, actor, epId) {
+  const tt = document.getElementById('tooltip');
+  const info = (ACTOR_EP_INFO[epId] || {})[actor.actor_id];
+
+  let html = `<div class="tt-label">${actor.label}</div>`;
+  html += `<div class="tt-meta">${actor.side} · ${actor.node_type.replace(/_/g,' ')}</div>`;
+
+  if (info) {
+    if (info.obj && info.obj.length) {
+      html += `<div class="tt-section">Objectives</div>`;
+      info.obj.forEach(o => { html += `<div class="tt-obj">▸ ${o}</div>`; });
+    }
+    if (info.red && info.red.length) {
+      html += `<div class="tt-section">Red Lines</div>`;
+      info.red.forEach(r => { html += `<div class="tt-red">✕ ${r}</div>`; });
+    }
+  } else {
+    html += `<div style="color:#8b949e;margin-top:4px;font-size:11px">No episode-specific data</div>`;
+  }
+
+  tt.innerHTML = html;
+  tt.style.display = 'block';
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  const tt = document.getElementById('tooltip');
+  const margin = 16;
+  let x = e.clientX + margin;
+  let y = e.clientY + margin;
+  const w = tt.offsetWidth, h = tt.offsetHeight;
+  if (x + w > window.innerWidth - 8) x = e.clientX - w - margin;
+  if (y + h > window.innerHeight - 8) y = e.clientY - h - margin;
+  tt.style.left = x + 'px';
+  tt.style.top  = y + 'px';
+}
+
+function hideTooltip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+function buildLegend() {
+  const nodeLeg = document.getElementById('node-legend');
+  Object.entries(COLOR_KEYS).forEach(([key, color]) => {
+    const div = document.createElement('div');
+    div.className = 'legend-item';
+    div.innerHTML = `<div class="legend-dot" style="background:${color}"></div><span>${COLOR_KEY_LABELS[key]||key}</span>`;
+    nodeLeg.appendChild(div);
+  });
+
+  const edgeLeg = document.getElementById('edge-legend');
+  Object.entries(EDGE_COLORS).forEach(([type, color]) => {
+    const div = document.createElement('div');
+    div.className = 'legend-item';
+    div.innerHTML = `<svg class="legend-arrow" width="28" height="10" xmlns="http://www.w3.org/2000/svg"><defs><marker id="leg-arr-${type}" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto"><polygon points="0 0, 6 2.5, 0 5" fill="${color}"/></marker></defs><line x1="0" y1="5" x2="22" y2="5" stroke="${color}" stroke-width="2" marker-end="url(#leg-arr-${type})"/></svg><span>${EDGE_LABELS[type]||type}</span>`;
+    edgeLeg.appendChild(div);
+  });
+}
+
+function updateEpisodeInfo(ep) {
+  document.getElementById('ep-title').textContent = ep.label;
+  document.getElementById('ep-dates').textContent = `${ep.start_date} – ${ep.end_date}`;
+  document.getElementById('ep-summary').textContent = ep.short_summary;
+  document.getElementById('ep-counts').textContent = ep.hostage_counts_by_phase;
+}
+
+function setEpisode(index) {
+  currentEpIndex = index;
+  const ep = episodes[index];
+  if (!ep) return;
+  document.getElementById('ep-slider').value = index;
+  document.getElementById('ep-select').value = ep.episode_id;
+  updateEpisodeInfo(ep);
+  buildSVG(ep.episode_id);
+}
+
+function exportCurrentView() {
+  const ep = episodes[currentEpIndex];
+  if (!ep) return;
+
+  // edges TSV
+  const epEdges = allEdges.filter(e => e.episode_id === ep.episode_id);
+  const edgeHeaders = ['episode_id','source_actor_id','target_actor_id','rel_type','strength','confidence','issue_tags','notes'];
+  const edgeRows = [edgeHeaders.join('\t')];
+  epEdges.forEach(e => {
+    edgeRows.push(edgeHeaders.map(h => e[h]||'').join('\t'));
+  });
+  downloadFile(`edges-${ep.episode_id}.tsv`, edgeRows.join('\n'), 'text/tab-separated-values');
+
+  // actors TSV
+  const actorHeaders = ['actor_id','label','side','node_type','x','y','color_key','size_base'];
+  const actorRows = [actorHeaders.join('\t')];
+  actorsList.forEach(a => {
+    actorRows.push(actorHeaders.map(h => a[h]||'').join('\t'));
+  });
+  downloadFile(`actors.tsv`, actorRows.join('\n'), 'text/tab-separated-values');
+}
+
+function downloadFile(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+}
+
+async function init() {
+  await loadData();
+
+  // populate select
+  const sel = document.getElementById('ep-select');
+  episodes.forEach((ep, i) => {
+    const opt = document.createElement('option');
+    opt.value = ep.episode_id;
+    opt.textContent = `${i+1}. ${ep.label}`;
+    sel.appendChild(opt);
+  });
+
+  document.getElementById('ep-slider').max = episodes.length - 1;
+
+  sel.addEventListener('change', () => {
+    const idx = episodes.findIndex(e => e.episode_id === sel.value);
+    if (idx >= 0) setEpisode(idx);
+  });
+
+  document.getElementById('ep-slider').addEventListener('input', e => {
+    setEpisode(parseInt(e.target.value, 10));
+  });
+
+  document.getElementById('export-btn').addEventListener('click', exportCurrentView);
+
+  buildLegend();
+  setEpisode(0);
+}
+
+init().catch(err => {
+  console.error('Failed to load data:', err);
+  document.getElementById('ep-summary').textContent = 'Error loading data: ' + err.message + '. Make sure to serve this file via a local HTTP server (e.g. python -m http.server 8080).';
+});
+</script>
+</body>
+</html>
