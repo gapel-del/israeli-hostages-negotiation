@@ -123,7 +123,7 @@ select {
       <p class="simplified-desc">Actors grouped into principal blocs. Edges show the most significant relationship between each pair per episode.</p>
     </div>
     <div class="simp-viz-wrap">
-      <svg id="simpMap" viewBox="0 0 1000 490" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+      <svg id="simpMap" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
   </div>
 </div>
@@ -821,7 +821,7 @@ Promise.all([
     while (svg.firstChild) svg.removeChild(svg.firstChild);
 
     // Background
-    svg.appendChild(svgEl('rect', { width:1000, height:490, fill:'#0d1117' }));
+    svg.appendChild(svgEl('rect', { width:1000, height:500, fill:'#0d1117' }));
 
     // ── Group boxes ──────────────────────────────────────────────
     function sBox(x, y, w, h, fill, stroke, label, lx, ly) {
@@ -839,7 +839,7 @@ Promise.all([
     sBox(10,  10, 268, 270, 'rgba(56,139,253,0.06)',  '#1f6feb', 'ISRAEL',    144, 27);
     sBox(300, 10, 400, 380, 'rgba(227,179,65,0.06)',  '#e3b341', 'MEDIATORS', 500, 27);
     sBox(722, 10, 268, 270, 'rgba(218,54,51,0.06)',   '#da3633', 'HAMAS',     856, 27);
-    sBox(10, 400, 980,  80, 'rgba(188,140,255,0.06)', '#bc8cff', 'INTERNATIONAL & EXTERNAL', 500, 416);
+    sBox(10, 390, 980, 100, 'rgba(188,140,255,0.06)', '#bc8cff', 'INTERNATIONAL & EXTERNAL', 500, 405);
 
     // Active simplified actors (those involved in at least one edge)
     const simpEdges = aggregateSimpEdges(epEdges);
@@ -866,16 +866,28 @@ Promise.all([
       const sx2 = sx+(dx/len)*PH, sy2 = sy+(dy/len)*PH;
       const tx2 = tx-(dx/len)*(PH+ARROW_GAP), ty2 = ty-(dy/len)*(PH+ARROW_GAP);
 
-      // S-curve for inter-group, Q for to/from international
+      // Route edges
       const srcIntl = sy > 380, tgtIntl = ty > 380;
+      const inIsrael = sx < 280 && tx < 280 && !srcIntl && !tgtIntl;
+      const inHamas  = sx > 720 && tx > 720 && !srcIntl && !tgtIntl;
       let d;
       if (srcIntl || tgtIntl) {
+        // To/from international row — quadratic curve
         const cpx = (sx+tx)/2, cpy = (sy+ty)/2 + 20;
         d = `M ${sx2} ${sy2} Q ${cpx} ${cpy} ${tx2} ${ty2}`;
+      } else if (inIsrael || inHamas) {
+        // Intra-group (same column) — curve outward past group edge
+        const dir  = inIsrael ? -1 : 1;
+        const outX = inIsrael ? -50 : 1050;
+        const sx2g = sx + dir * PH,            sy2g = sy;
+        const tx2g = tx + dir * (PH + ARROW_GAP), ty2g = ty;
+        d = `M ${sx2g} ${sy2g} C ${outX} ${sy} ${outX} ${ty} ${tx2g} ${ty2g}`;
       } else {
+        // Inter-group — S-curve
         const off = 140;
-        const cp1x = sx2+(tx2>sx2?off:-off), cp1y=sy2;
-        const cp2x = tx2-(tx2>sx2?off:-off), cp2y=ty2;
+        const dir = tx > sx ? 1 : -1;
+        const cp1x = sx2 + dir*off, cp1y = sy2;
+        const cp2x = tx2 - dir*off, cp2y = ty2;
         d = `M ${sx2} ${sy2} C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${tx2} ${ty2}`;
       }
 
