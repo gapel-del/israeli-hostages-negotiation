@@ -3,91 +3,123 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Israeli–Hamas Hostage Negotiation Party Map</title>
+<title>Israeli–Hamas Hostage Negotiation — Influence Network</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:#0d1117;color:#e6edf3;font-family:'Inter',sans-serif;font-size:14px;min-height:100vh;display:flex;flex-direction:column}
-a{color:#58a6ff}
-#header{background:#161b22;border-bottom:1px solid #30363d;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-#header h1{font-size:16px;font-weight:600;white-space:nowrap}
-#controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:1}
-label{font-size:12px;color:#8b949e;white-space:nowrap}
-select,input[type=range]{background:#0d1117;border:1px solid #30363d;color:#e6edf3;border-radius:6px;padding:4px 8px;font-family:inherit;font-size:13px;cursor:pointer}
-input[type=range]{padding:0;width:160px;accent-color:#58a6ff}
-button{background:#21262d;border:1px solid #30363d;color:#e6edf3;border-radius:6px;padding:6px 14px;font-family:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
-button:hover{background:#30363d}
-#episode-info{background:#161b22;border-bottom:1px solid #30363d;padding:10px 20px}
-#ep-title{font-weight:600;font-size:14px;margin-bottom:2px}
-#ep-dates{font-size:12px;color:#8b949e;margin-bottom:4px}
-#ep-summary{font-size:12px;color:#c9d1d9;line-height:1.5;max-width:900px}
-#ep-counts{font-size:11px;color:#8b949e;margin-top:3px;font-style:italic}
-#main{display:flex;flex:1;overflow:hidden}
-#svg-container{flex:1;overflow:auto;position:relative}
-svg#map{display:block;width:100%;height:auto}
-#sidebar{width:260px;background:#161b22;border-left:1px solid #30363d;overflow-y:auto;padding:14px;flex-shrink:0}
-#sidebar h2{font-size:13px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
-.legend-section{margin-bottom:18px}
-.legend-section h3{font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;border-top:1px solid #30363d;padding-top:6px}
-.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px}
-.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-.legend-line{width:28px;height:3px;flex-shrink:0;border-radius:2px}
-.legend-arrow{width:28px;height:10px;flex-shrink:0;display:flex;align-items:center}
-#tooltip{position:fixed;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px;max-width:280px;font-size:12px;pointer-events:none;z-index:1000;display:none;line-height:1.5;box-shadow:0 4px 16px rgba(0,0,0,.5)}
-#tooltip .tt-label{font-weight:600;font-size:13px;margin-bottom:4px}
-#tooltip .tt-meta{color:#8b949e;margin-bottom:6px}
-#tooltip .tt-section{font-size:11px;text-transform:uppercase;color:#8b949e;margin-top:6px;margin-bottom:2px;letter-spacing:.04em}
-#tooltip .tt-obj{color:#3fb950}
-#tooltip .tt-red{color:#f85149}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0d1117; color: #e6edf3; font-family: 'Inter', system-ui, sans-serif; }
+.page { display: flex; flex-direction: column; min-height: 100vh; }
+header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 1.25rem 1.75rem 1rem; border-bottom: 1px solid #21262d;
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+}
+.header-left { flex: 1; min-width: 0; }
+.header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; flex-shrink: 0; }
+.eyebrow {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: #8b949e; display: block; margin-bottom: 0.3rem;
+}
+h1 { font-size: 1.1rem; font-weight: 700; color: #e6edf3; line-height: 1.3; max-width: 600px; }
+.dates { font-size: 0.75rem; color: #8b949e; margin-top: 0.25rem; }
+.controls { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; }
+.controls label {
+  font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1px; color: #8b949e;
+}
+input[type=range] { width: 180px; accent-color: #e3b341; cursor: pointer; }
+select {
+  background: #161b22; border: 1px solid #30363d; color: #e6edf3;
+  font-size: 0.75rem; padding: 0.3rem 0.5rem; border-radius: 6px;
+  font-family: inherit; cursor: pointer;
+}
+#exportBtn {
+  background: #161b22; border: 1px solid #30363d; color: #8b949e;
+  font-size: 0.72rem; padding: 0.4rem 0.8rem; border-radius: 6px;
+  cursor: pointer; transition: all 0.15s;
+}
+#exportBtn:hover { border-color: #58a6ff; color: #58a6ff; }
+.summary-bar {
+  padding: 0.75rem 1.75rem; background: #0d1117;
+  border-bottom: 1px solid #21262d; display: flex; gap: 2rem; align-items: baseline;
+}
+#summary { font-size: 0.8rem; color: #8b949e; line-height: 1.5; max-width: 700px; }
+.counts { font-size: 0.75rem; color: #e3b341; font-weight: 600; white-space: nowrap; }
+.viz-wrap {
+  flex: 1; padding: 1rem 1.25rem 0.5rem;
+  display: flex; justify-content: center;
+}
+#map { width: 100%; max-width: 1100px; height: auto; display: block; }
+.legend-bar {
+  padding: 0.6rem 1.75rem; border-top: 1px solid #21262d;
+  display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center;
+}
+.leg-item { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; color: #8b949e; }
+.leg-line { height: 2px; border-radius: 1px; flex-shrink: 0; }
+.leg-dim { font-size: 0.68rem; color: #6e7681; margin-left: auto; }
+#tooltip {
+  position: fixed; pointer-events: none; z-index: 100;
+  background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+  padding: 0.75rem 1rem; max-width: 300px; font-size: 0.78rem; line-height: 1.55;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6); display: none;
+}
+#tooltip h3 { font-size: 0.85rem; color: #e6edf3; margin-bottom: 0.3rem; }
+#tooltip .tt-meta { color: #8b949e; font-size: 0.72rem; margin-bottom: 0.5rem; }
+#tooltip .tt-sec { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: #6e7681; margin-top: 0.5rem; margin-bottom: 0.2rem; }
+#tooltip .tt-obj { color: #3fb950; padding-left: 0.5rem; }
+#tooltip .tt-red { color: #f85149; padding-left: 0.5rem; }
+#tooltip .tt-none { color: #6e7681; font-style: italic; font-size: 0.72rem; }
 </style>
 </head>
 <body>
-
-<div id="header">
-  <h1>Hostage Negotiation Party Map</h1>
-  <div id="controls">
-    <label>Episode</label>
-    <select id="ep-select"></select>
-    <input type="range" id="ep-slider" min="0" max="5" step="1" value="0"/>
-    <button id="export-btn">Export current view</button>
+<div class="page">
+  <header>
+    <div class="header-left">
+      <span class="eyebrow">Hostage Negotiation Parties</span>
+      <h1 id="episodeTitle">Loading…</h1>
+      <p id="episodeDates" class="dates"></p>
+    </div>
+    <div class="header-right">
+      <div class="controls">
+        <label>Episode</label>
+        <input type="range" id="slider" min="0" max="5" value="0" step="1"/>
+        <select id="dropdown"></select>
+      </div>
+      <button id="exportBtn">↓ Export TSV</button>
+    </div>
+  </header>
+  <div class="summary-bar">
+    <p id="summary"></p>
+    <p id="counts" class="counts"></p>
+  </div>
+  <div class="viz-wrap">
+    <svg id="map" viewBox="0 0 1100 680" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+  <div class="legend-bar" id="legendBar">
+    <span class="leg-dim">Dimmed = not active in this episode</span>
   </div>
 </div>
-
-<div id="episode-info">
-  <div id="ep-title"></div>
-  <div id="ep-dates"></div>
-  <div id="ep-summary"></div>
-  <div id="ep-counts"></div>
-</div>
-
-<div id="main">
-  <div id="svg-container">
-    <svg id="map" viewBox="0 0 960 700" xmlns="http://www.w3.org/2000/svg"></svg>
-  </div>
-  <div id="sidebar">
-    <h2>Legend</h2>
-    <div class="legend-section">
-      <h3>Node Types</h3>
-      <div id="node-legend"></div>
-    </div>
-    <div class="legend-section">
-      <h3>Edge Types</h3>
-      <div id="edge-legend"></div>
-    </div>
-    <div class="legend-section">
-      <h3>Edge Style</h3>
-      <div class="legend-item"><svg width="28" height="10" style="flex-shrink:0"><line x1="0" y1="5" x2="28" y2="5" stroke="#8b949e" stroke-width="2"/></svg><span>Solid = confidence ≥ 0.6</span></div>
-      <div class="legend-item"><svg width="28" height="10" style="flex-shrink:0"><line x1="0" y1="5" x2="28" y2="5" stroke="#8b949e" stroke-width="2" stroke-dasharray="4,3"/></svg><span>Dashed = confidence &lt; 0.6</span></div>
-      <div class="legend-item" style="margin-top:4px;font-size:11px;color:#8b949e">Thickness = strength × 5</div>
-    </div>
-  </div>
-</div>
-
 <div id="tooltip"></div>
 
 <script>
-const COLOR_KEYS = {
+'use strict';
+
+// ── Colour maps ──────────────────────────────────────────────────────────────
+const NODE_BG = {
+  israel_primary:    '#0d2a56',
+  israel_individual: '#0a1f42',
+  israel_faction:    '#0a1e3d',
+  israel_external:   '#060f22',
+  hamas_primary:     '#3d0d0c',
+  hamas_individual:  '#2d0908',
+  hamas_faction:     '#280807',
+  hamas_external:    '#1a0504',
+  mediator:          '#3d2e00',
+  international:     '#1e1040',
+};
+
+const NODE_STROKE = {
   israel_primary:    '#388bfd',
   israel_individual: '#58a6ff',
   israel_faction:    '#1f6feb',
@@ -100,39 +132,27 @@ const COLOR_KEYS = {
   international:     '#bc8cff',
 };
 
-const COLOR_KEY_LABELS = {
-  israel_primary:    'Israel – Primary Party',
-  israel_individual: 'Israel – Individual',
-  israel_faction:    'Israel – Internal Faction',
-  israel_external:   'Israel – External Stakeholder',
-  hamas_primary:     'Hamas – Primary Party',
-  hamas_individual:  'Hamas – Individual',
-  hamas_faction:     'Hamas – Internal Faction',
-  hamas_external:    'Hamas – External Stakeholder',
-  mediator:          'Mediator',
-  international:     'International',
-};
-
 const EDGE_COLORS = {
-  mediates:                 '#e3b341',
-  pressures:                '#fb8500',
-  veto_or_exit_threat:      '#f85149',
-  implements_transfer:      '#3fb950',
-  endorses_or_legitimizes:  '#bc8cff',
-  conflict_background:      '#6e7681',
-  guarantees_or_monitoring: '#39d3f2',
+  mediates:                '#e3b341',
+  pressures:               '#fb8500',
+  veto_or_exit_threat:     '#f85149',
+  implements_transfer:     '#3fb950',
+  endorses_or_legitimizes: '#bc8cff',
+  conflict_background:     '#6e7681',
+  guarantees_or_monitoring:'#39d3f2',
 };
 
 const EDGE_LABELS = {
-  mediates:                 'Mediates',
-  pressures:                'Pressures',
-  veto_or_exit_threat:      'Veto / Exit Threat',
-  implements_transfer:      'Implements Transfer',
-  endorses_or_legitimizes:  'Endorses / Legitimizes',
-  conflict_background:      'Conflict Background',
-  guarantees_or_monitoring: 'Guarantees / Monitoring',
+  mediates:                'Mediates',
+  pressures:               'Pressures',
+  veto_or_exit_threat:     'Veto / Exit Threat',
+  implements_transfer:     'Implements Transfer',
+  endorses_or_legitimizes: 'Endorses / Legitimizes',
+  conflict_background:     'Conflict Background',
+  guarantees_or_monitoring:'Guarantees / Monitoring',
 };
 
+// ── Episode-specific actor info ───────────────────────────────────────────────
 const ACTOR_EP_INFO = {
   ep1: {
     israel_exec:   { obj: ['Secure releases while preserving ability to resume operations','Conditional truce extensions at 10 hostages/day'], red: ['No permanent ceasefire commitment','Must maintain operational flexibility'] },
@@ -196,6 +216,29 @@ const ACTOR_EP_INFO = {
   },
 };
 
+// ── SVG helpers ───────────────────────────────────────────────────────────────
+const NS = 'http://www.w3.org/2000/svg';
+
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(NS, tag);
+  if (attrs) Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+  return el;
+}
+
+function svgText(parent, txt, attrs) {
+  const el = svgEl('text', attrs);
+  el.textContent = txt;
+  parent.appendChild(el);
+  return el;
+}
+
+// ── Pill label truncation ─────────────────────────────────────────────────────
+function truncLabel(label, maxLen) {
+  if (label.length <= maxLen) return label;
+  return label.slice(0, maxLen - 1) + '…';
+}
+
+// ── TSV parser ────────────────────────────────────────────────────────────────
 function parseTSV(text) {
   const lines = text.trim().split('\n');
   const headers = lines[0].split('\t').map(h => h.trim());
@@ -207,361 +250,418 @@ function parseTSV(text) {
   }).filter(row => Object.values(row).some(v => v !== ''));
 }
 
-const NS = 'http://www.w3.org/2000/svg';
-
-let actors = {};
-let actorsList = [];
-let episodes = [];
-let allEdges = [];
-let currentEpIndex = 0;
-
-async function loadData() {
-  const [actorsTSV, episodesTSV, edgesTSV] = await Promise.all([
-    fetch('actors.tsv').then(r => r.text()),
-    fetch('episodes.tsv').then(r => r.text()),
-    fetch('edges.tsv').then(r => r.text()),
-  ]);
-  actorsList = parseTSV(actorsTSV);
-  actorsList.forEach(a => { actors[a.actor_id] = a; });
-  episodes = parseTSV(episodesTSV);
-  allEdges = parseTSV(edgesTSV);
+// ── Group region helpers ──────────────────────────────────────────────────────
+function getRegion(x) {
+  if (x < 310) return 'israel';
+  if (x < 800) return 'mediator';
+  if (x < 990) return 'hamas';
+  return 'international';
 }
 
-function offsetPoint(fx, fy, tx, ty, r) {
-  const dx = tx - fx, dy = ty - fy;
-  const len = Math.sqrt(dx*dx + dy*dy) || 1;
-  return [fx + (dx/len)*r, fy + (dy/len)*r];
+// ── drawGroups ────────────────────────────────────────────────────────────────
+function drawGroups(g) {
+  // Helper: group box
+  function box(attrs, labelText, labelAttrs) {
+    g.appendChild(svgEl('rect', attrs));
+    if (labelText) svgText(g, labelText, labelAttrs);
+  }
+
+  // Helper: sub-box with dashed stroke
+  function subBox(attrs, labelText, labelAttrs) {
+    const el = svgEl('rect', { ...attrs, stroke: '#1f6feb33', 'stroke-dasharray': '4 2', fill: 'rgba(56,139,253,0.04)' });
+    g.appendChild(el);
+    if (labelText) svgText(g, labelText, labelAttrs);
+  }
+
+  // ── Israel ──────────────────────────────────────────────────────────────────
+  box(
+    { x: 12, y: 12, width: 288, height: 548, rx: 10,
+      fill: 'rgba(56,139,253,0.06)', stroke: '#1f6feb', 'stroke-width': 1.5 },
+    'ISRAEL',
+    { x: 156, y: 32, 'text-anchor': 'middle', fill: '#388bfd',
+      'font-size': 11, 'font-weight': 700, 'letter-spacing': 2,
+      'font-family': 'Inter,sans-serif', 'pointer-events': 'none' }
+  );
+  // Gov't & Security sub-box
+  subBox(
+    { x: 20, y: 38, width: 272, height: 390, rx: 6 },
+    "GOV'T & SECURITY",
+    { x: 156, y: 52, 'text-anchor': 'middle', fill: '#388bfd66',
+      'font-size': 9, 'font-weight': 600, 'letter-spacing': 1.5,
+      'font-family': 'Inter,sans-serif', 'pointer-events': 'none' }
+  );
+  // Civil Society sub-box
+  const civilEl = svgEl('rect', { x: 20, y: 438, width: 272, height: 115, rx: 6,
+    fill: 'rgba(56,139,253,0.04)', stroke: '#1f6feb33', 'stroke-dasharray': '4 2' });
+  g.appendChild(civilEl);
+  svgText(g, 'CIVIL SOCIETY', { x: 156, y: 452, 'text-anchor': 'middle',
+    fill: '#388bfd66', 'font-size': 9, 'font-weight': 600, 'letter-spacing': 1.5,
+    'font-family': 'Inter,sans-serif', 'pointer-events': 'none' });
+
+  // ── Mediators ───────────────────────────────────────────────────────────────
+  box(
+    { x: 320, y: 12, width: 460, height: 548, rx: 10,
+      fill: 'rgba(227,179,65,0.06)', stroke: '#e3b341', 'stroke-width': 1.5 },
+    'MEDIATORS',
+    { x: 550, y: 32, 'text-anchor': 'middle', fill: '#e3b341',
+      'font-size': 11, 'font-weight': 700, 'letter-spacing': 2,
+      'font-family': 'Inter,sans-serif', 'pointer-events': 'none' }
+  );
+
+  // ── Hamas ───────────────────────────────────────────────────────────────────
+  box(
+    { x: 800, y: 12, width: 288, height: 548, rx: 10,
+      fill: 'rgba(218,54,51,0.06)', stroke: '#da3633', 'stroke-width': 1.5 },
+    'HAMAS',
+    { x: 944, y: 32, 'text-anchor': 'middle', fill: '#da3633',
+      'font-size': 11, 'font-weight': 700, 'letter-spacing': 2,
+      'font-family': 'Inter,sans-serif', 'pointer-events': 'none' }
+  );
+  // Hamas sub-boxes
+  const hamasSubAttrs = { fill: 'rgba(218,54,51,0.04)', stroke: '#da363333', 'stroke-dasharray': '4 2' };
+  g.appendChild(svgEl('rect', { x: 808, y: 38, width: 272, height: 220, rx: 6, ...hamasSubAttrs }));
+  svgText(g, 'POLITICAL (DOHA)', { x: 944, y: 52, 'text-anchor': 'middle',
+    fill: '#da363366', 'font-size': 9, 'font-weight': 600, 'letter-spacing': 1.5,
+    'font-family': 'Inter,sans-serif', 'pointer-events': 'none' });
+  g.appendChild(svgEl('rect', { x: 808, y: 268, width: 272, height: 285, rx: 6, ...hamasSubAttrs }));
+  svgText(g, 'GAZA LEADERSHIP', { x: 944, y: 284, 'text-anchor': 'middle',
+    fill: '#da363366', 'font-size': 9, 'font-weight': 600, 'letter-spacing': 1.5,
+    'font-family': 'Inter,sans-serif', 'pointer-events': 'none' });
+
+  // ── International row ───────────────────────────────────────────────────────
+  box(
+    { x: 12, y: 570, width: 1076, height: 100, rx: 10,
+      fill: 'rgba(188,140,255,0.06)', stroke: '#bc8cff', 'stroke-width': 1.5 },
+    'INTERNATIONAL & EXTERNAL',
+    { x: 550, y: 584, 'text-anchor': 'middle', fill: '#bc8cff',
+      'font-size': 11, 'font-weight': 700, 'letter-spacing': 2,
+      'font-family': 'Inter,sans-serif', 'pointer-events': 'none' }
+  );
 }
 
-function buildSVG(epId) {
-  const svgEl = document.getElementById('map');
-  while (svgEl.firstChild) svgEl.removeChild(svgEl.firstChild);
+// ── drawNode ──────────────────────────────────────────────────────────────────
+function drawNode(parent, actor, active, epId, tooltip) {
+  const x = actor.x, y = actor.y;
+  const ck = actor.color_key;
+  const bg = NODE_BG[ck] || '#111';
+  const stroke = NODE_STROKE[ck] || '#555';
+  const opacity = active ? 1 : 0.22;
 
-  // defs
-  const defs = document.createElementNS(NS, 'defs');
-  Object.entries(EDGE_COLORS).forEach(([type, color]) => {
-    const marker = document.createElementNS(NS, 'marker');
-    marker.setAttribute('id', `arrow-${type}`);
-    marker.setAttribute('markerWidth', '8');
-    marker.setAttribute('markerHeight', '6');
-    marker.setAttribute('refX', '7');
-    marker.setAttribute('refY', '3');
-    marker.setAttribute('orient', 'auto');
-    marker.setAttribute('markerUnits', 'strokeWidth');
-    const poly = document.createElementNS(NS, 'polygon');
-    poly.setAttribute('points', '0 0, 8 3, 0 6');
-    poly.setAttribute('fill', color);
-    marker.appendChild(poly);
-    defs.appendChild(marker);
-  });
-  svgEl.appendChild(defs);
-
-  // background
-  const bg = document.createElementNS(NS, 'rect');
-  bg.setAttribute('width', '960');
-  bg.setAttribute('height', '700');
-  bg.setAttribute('fill', '#0d1117');
-  svgEl.appendChild(bg);
-
-  // region labels
-  const regions = [
-    { x: 175, y: 25, text: 'ISRAEL', color: '#1f6feb' },
-    { x: 480, y: 25, text: 'MEDIATORS', color: '#9e8a2e' },
-    { x: 840, y: 25, text: 'HAMAS', color: '#b91c1c' },
-  ];
-  regions.forEach(r => {
-    const t = document.createElementNS(NS, 'text');
-    t.setAttribute('x', r.x);
-    t.setAttribute('y', r.y);
-    t.setAttribute('text-anchor', 'middle');
-    t.setAttribute('fill', r.color);
-    t.setAttribute('font-size', '11');
-    t.setAttribute('font-family', 'Inter, sans-serif');
-    t.setAttribute('font-weight', '600');
-    t.setAttribute('letter-spacing', '2');
-    t.setAttribute('opacity', '0.5');
-    t.textContent = r.text;
-    svgEl.appendChild(t);
+  const g = svgEl('g', {
+    class: 'actor',
+    transform: `translate(${x},${y})`,
+    opacity,
+    cursor: 'pointer',
+    'data-id': actor.actor_id,
   });
 
-  // edges for this episode
-  const epEdges = allEdges.filter(e => e.episode_id === epId);
+  // Pill background
+  g.appendChild(svgEl('rect', {
+    x: -65, y: -15, width: 130, height: 30, rx: 15,
+    fill: bg, stroke, 'stroke-width': 1.2,
+  }));
 
-  // build reverse-edge lookup for curve offset
-  const edgeSet = new Set(epEdges.map(e => `${e.source_actor_id}|${e.target_actor_id}`));
+  // Type dot
+  g.appendChild(svgEl('circle', {
+    cx: -52, cy: 0, r: 4.5,
+    fill: stroke,
+    opacity: 0.9,
+  }));
 
-  const edgeGroup = document.createElementNS(NS, 'g');
-  edgeGroup.setAttribute('id', 'edges');
-  svgEl.appendChild(edgeGroup);
+  // Label text
+  const label = truncLabel(actor.label, actor.node_type === 'primary_party' ? 20 : 16);
+  const textEl = svgEl('text', {
+    x: -43, y: 4,
+    'font-size': 10.5,
+    fill: '#e6edf3',
+    'font-family': 'Inter,sans-serif',
+    'pointer-events': 'none',
+  });
+  textEl.textContent = label;
+  g.appendChild(textEl);
 
-  epEdges.forEach(edge => {
-    const src = actors[edge.source_actor_id];
-    const tgt = actors[edge.target_actor_id];
-    if (!src || !tgt) return;
+  // Tooltip events
+  g.addEventListener('mouseenter', (e) => showTooltip(e, actor, epId, tooltip));
+  g.addEventListener('mousemove', (e) => moveTooltip(e, tooltip));
+  g.addEventListener('mouseleave', () => hideTooltip(tooltip));
 
-    const sx = parseFloat(src.x), sy = parseFloat(src.y);
-    const tx = parseFloat(tgt.x), ty = parseFloat(tgt.y);
-    const r1 = parseFloat(src.size_base) + 2;
-    const r2 = parseFloat(tgt.size_base) + 2;
-    const strength = parseFloat(edge.strength) || 0.5;
-    const confidence = parseFloat(edge.confidence) || 1.0;
+  parent.appendChild(g);
+}
 
-    // check if reverse edge exists
-    const hasReverse = edgeSet.has(`${edge.target_actor_id}|${edge.source_actor_id}`);
-    const offset = hasReverse ? 28 : 0;
+// ── drawEdge ──────────────────────────────────────────────────────────────────
+const PILL_HALF = 65; // half-width of pill in px
 
-    // midpoint + perpendicular offset for curve
-    const mx = (sx + tx) / 2, my = (sy + ty) / 2;
-    const dx = tx - sx, dy = ty - sy;
-    const len = Math.sqrt(dx*dx + dy*dy) || 1;
-    const cpx = mx + (-dy / len) * offset;
-    const cpy = my + (dx / len) * offset;
+function pillEdgePoint(ax, ay, bx, by) {
+  // Offset pill center by PILL_HALF in direction of b
+  const dx = bx - ax, dy = by - ay;
+  const len = Math.sqrt(dx * dx + dy * dy) || 1;
+  return [ax + (dx / len) * PILL_HALF, ay + (dy / len) * PILL_HALF];
+}
 
-    // offset start/end points by node radius
-    const [sx2, sy2] = offsetPoint(cpx, cpy, sx, sy, -(r1));
-    const [tx2, ty2] = offsetPoint(cpx, cpy, tx, ty, -(r2));
+function drawEdge(parent, src, tgt, edge) {
+  const sx = src.x, sy = src.y;
+  const tx = tgt.x, ty = tgt.y;
+  const color = EDGE_COLORS[edge.rel_type] || '#8b949e';
+  const strength = parseFloat(edge.strength) || 0.5;
+  const confidence = parseFloat(edge.confidence) || 1.0;
+  const strokeW = Math.max(1, strength * 5);
 
-    // actual start offset from node
-    const [startX, startY] = offsetPoint(sx, sy, tx, ty, r1);
-    const [endX, endY]     = offsetPoint(tx, ty, sx, sy, r2 + 5);
+  const srcRegion = getRegion(sx);
+  const tgtRegion = getRegion(tx);
+  const sameGroup = srcRegion === tgtRegion;
 
-    const color = EDGE_COLORS[edge.rel_type] || '#8b949e';
-    const strokeW = Math.max(1, strength * 5);
+  let d;
 
-    const path = document.createElementNS(NS, 'path');
-    let d;
-    if (offset === 0) {
-      d = `M ${startX} ${startY} L ${endX} ${endY}`;
+  if (sameGroup) {
+    // Intra-group: curve out to the right of the group
+    let outX;
+    if (srcRegion === 'israel') {
+      outX = 300; // curve to right edge of Israel box
+    } else if (srcRegion === 'hamas') {
+      outX = 1090; // curve to right edge of Hamas box
+    } else if (srcRegion === 'mediator') {
+      outX = 780; // curve to right of mediator box
     } else {
-      d = `M ${startX} ${startY} Q ${cpx} ${cpy} ${endX} ${endY}`;
+      outX = Math.max(sx, tx) + 80;
     }
-    path.setAttribute('d', d);
-    path.setAttribute('fill', 'none');
-    path.setAttribute('stroke', color);
-    path.setAttribute('stroke-width', strokeW);
-    path.setAttribute('opacity', '0.75');
-    path.setAttribute('marker-end', `url(#arrow-${edge.rel_type})`);
-    if (confidence < 0.6) {
-      path.setAttribute('stroke-dasharray', `${strokeW*3} ${strokeW*2}`);
-    }
-    path.setAttribute('data-src', edge.source_actor_id);
-    path.setAttribute('data-tgt', edge.target_actor_id);
-    path.setAttribute('data-rel', edge.rel_type);
-    path.setAttribute('data-notes', edge.notes || '');
-    edgeGroup.appendChild(path);
+
+    // Start/end points on pill edge pointing toward the control
+    const [sx2, sy2] = pillEdgePoint(sx, sy, outX, sy);
+    const [tx2, ty2] = pillEdgePoint(tx, ty, outX, ty);
+    d = `M ${sx2} ${sy2} C ${outX} ${sy} ${outX} ${ty} ${tx2} ${ty2}`;
+  } else if (tgtRegion === 'international' || srcRegion === 'international') {
+    // Edges to/from international row — quadratic downward curve
+    const [sx2, sy2] = pillEdgePoint(sx, sy, tx, ty);
+    const [tx2, ty2] = pillEdgePoint(tx, ty, sx, sy);
+    const cpx = (sx + tx) / 2;
+    const cpy = (sy + ty) / 2 + 30;
+    d = `M ${sx2} ${sy2} Q ${cpx} ${cpy} ${tx2} ${ty2}`;
+  } else {
+    // Inter-group: S-curve cubic bezier
+    const [sx2, sy2] = pillEdgePoint(sx, sy, tx, ty);
+    const [tx2, ty2] = pillEdgePoint(tx, ty, sx, sy);
+    const cpOffset = 160;
+    const cp1x = sx2 + (tx2 > sx2 ? cpOffset : -cpOffset);
+    const cp1y = sy2;
+    const cp2x = tx2 - (tx2 > sx2 ? cpOffset : -cpOffset);
+    const cp2y = ty2;
+    d = `M ${sx2} ${sy2} C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${tx2} ${ty2}`;
+  }
+
+  const path = svgEl('path', {
+    d,
+    fill: 'none',
+    stroke: color,
+    'stroke-width': strokeW,
+    opacity: 0.8,
+    'marker-end': `url(#arr-${edge.rel_type})`,
   });
 
-  // nodes
-  const nodeGroup = document.createElementNS(NS, 'g');
-  nodeGroup.setAttribute('id', 'nodes');
-  svgEl.appendChild(nodeGroup);
+  if (confidence < 0.6) {
+    path.setAttribute('stroke-dasharray', '6 4');
+  }
 
-  actorsList.forEach(actor => {
-    const x = parseFloat(actor.x), y = parseFloat(actor.y);
-    const r = parseFloat(actor.size_base);
-    const color = COLOR_KEYS[actor.color_key] || '#8b949e';
-
-    const g = document.createElementNS(NS, 'g');
-    g.setAttribute('cursor', 'pointer');
-    g.setAttribute('data-id', actor.actor_id);
-
-    const circle = document.createElementNS(NS, 'circle');
-    circle.setAttribute('cx', x);
-    circle.setAttribute('cy', y);
-    circle.setAttribute('r', r);
-    circle.setAttribute('fill', color);
-    circle.setAttribute('stroke', '#0d1117');
-    circle.setAttribute('stroke-width', '2');
-    g.appendChild(circle);
-
-    // label
-    const text = document.createElementNS(NS, 'text');
-    text.setAttribute('x', x);
-    text.setAttribute('y', y + r + 11);
-    text.setAttribute('text-anchor', 'middle');
-    text.setAttribute('fill', '#c9d1d9');
-    text.setAttribute('font-size', '9.5');
-    text.setAttribute('font-family', 'Inter, sans-serif');
-    text.setAttribute('pointer-events', 'none');
-
-    // wrap long labels
-    const words = actor.label.split(' ');
-    let line = '';
-    const maxW = 80;
-    let lineCount = 0;
-    words.forEach((word, i) => {
-      const testLine = line ? line + ' ' + word : word;
-      if (testLine.length > 12 && line && i > 0) {
-        const tspan = document.createElementNS(NS, 'tspan');
-        tspan.setAttribute('x', x);
-        tspan.setAttribute('dy', lineCount === 0 ? '0' : '10');
-        tspan.textContent = line;
-        text.appendChild(tspan);
-        line = word;
-        lineCount++;
-      } else {
-        line = testLine;
-      }
-    });
-    if (line) {
-      const tspan = document.createElementNS(NS, 'tspan');
-      tspan.setAttribute('x', x);
-      tspan.setAttribute('dy', lineCount === 0 ? '0' : '10');
-      tspan.textContent = line;
-      text.appendChild(tspan);
-    }
-
-    g.appendChild(text);
-
-    g.addEventListener('mouseenter', (e) => showTooltip(e, actor, epId));
-    g.addEventListener('mousemove', moveTooltip);
-    g.addEventListener('mouseleave', hideTooltip);
-
-    nodeGroup.appendChild(g);
-  });
+  parent.appendChild(path);
 }
 
-function showTooltip(e, actor, epId) {
-  const tt = document.getElementById('tooltip');
+// ── Tooltip ───────────────────────────────────────────────────────────────────
+function showTooltip(e, actor, epId, ttEl) {
   const info = (ACTOR_EP_INFO[epId] || {})[actor.actor_id];
-
-  let html = `<div class="tt-label">${actor.label}</div>`;
+  let html = `<h3>${actor.label}</h3>`;
   html += `<div class="tt-meta">${actor.side} · ${actor.node_type.replace(/_/g,' ')}</div>`;
-
   if (info) {
     if (info.obj && info.obj.length) {
-      html += `<div class="tt-section">Objectives</div>`;
+      html += `<div class="tt-sec">Objectives</div>`;
       info.obj.forEach(o => { html += `<div class="tt-obj">▸ ${o}</div>`; });
     }
     if (info.red && info.red.length) {
-      html += `<div class="tt-section">Red Lines</div>`;
+      html += `<div class="tt-sec">Red Lines</div>`;
       info.red.forEach(r => { html += `<div class="tt-red">✕ ${r}</div>`; });
     }
   } else {
-    html += `<div style="color:#8b949e;margin-top:4px;font-size:11px">No episode-specific data</div>`;
+    html += `<div class="tt-none">No episode-specific data</div>`;
   }
-
-  tt.innerHTML = html;
-  tt.style.display = 'block';
-  moveTooltip(e);
+  ttEl.innerHTML = html;
+  ttEl.style.display = 'block';
+  moveTooltip(e, ttEl);
 }
 
-function moveTooltip(e) {
-  const tt = document.getElementById('tooltip');
+function moveTooltip(e, ttEl) {
   const margin = 16;
   let x = e.clientX + margin;
   let y = e.clientY + margin;
-  const w = tt.offsetWidth, h = tt.offsetHeight;
+  const w = ttEl.offsetWidth, h = ttEl.offsetHeight;
   if (x + w > window.innerWidth - 8) x = e.clientX - w - margin;
   if (y + h > window.innerHeight - 8) y = e.clientY - h - margin;
-  tt.style.left = x + 'px';
-  tt.style.top  = y + 'px';
+  ttEl.style.left = x + 'px';
+  ttEl.style.top = y + 'px';
 }
 
-function hideTooltip() {
-  document.getElementById('tooltip').style.display = 'none';
+function hideTooltip(ttEl) {
+  ttEl.style.display = 'none';
 }
 
-function buildLegend() {
-  const nodeLeg = document.getElementById('node-legend');
-  Object.entries(COLOR_KEYS).forEach(([key, color]) => {
-    const div = document.createElement('div');
-    div.className = 'legend-item';
-    div.innerHTML = `<div class="legend-dot" style="background:${color}"></div><span>${COLOR_KEY_LABELS[key]||key}</span>`;
-    nodeLeg.appendChild(div);
-  });
+// ── drawMap ───────────────────────────────────────────────────────────────────
+function drawMap(actors, actorMap, epEdges, ep) {
+  const svg = document.getElementById('map');
+  const ttEl = document.getElementById('tooltip');
 
-  const edgeLeg = document.getElementById('edge-legend');
-  Object.entries(EDGE_COLORS).forEach(([type, color]) => {
-    const div = document.createElement('div');
-    div.className = 'legend-item';
-    div.innerHTML = `<svg class="legend-arrow" width="28" height="10" xmlns="http://www.w3.org/2000/svg"><defs><marker id="leg-arr-${type}" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto"><polygon points="0 0, 6 2.5, 0 5" fill="${color}"/></marker></defs><line x1="0" y1="5" x2="22" y2="5" stroke="${color}" stroke-width="2" marker-end="url(#leg-arr-${type})"/></svg><span>${EDGE_LABELS[type]||type}</span>`;
-    edgeLeg.appendChild(div);
-  });
-}
+  // Remove dynamic layers only
+  svg.querySelectorAll('.layer-groups,.layer-edges,.layer-nodes').forEach(el => el.remove());
 
-function updateEpisodeInfo(ep) {
-  document.getElementById('ep-title').textContent = ep.label;
-  document.getElementById('ep-dates').textContent = `${ep.start_date} – ${ep.end_date}`;
-  document.getElementById('ep-summary').textContent = ep.short_summary;
-  document.getElementById('ep-counts').textContent = ep.hostage_counts_by_phase;
-}
-
-function setEpisode(index) {
-  currentEpIndex = index;
-  const ep = episodes[index];
-  if (!ep) return;
-  document.getElementById('ep-slider').value = index;
-  document.getElementById('ep-select').value = ep.episode_id;
-  updateEpisodeInfo(ep);
-  buildSVG(ep.episode_id);
-}
-
-function exportCurrentView() {
-  const ep = episodes[currentEpIndex];
-  if (!ep) return;
-
-  // edges TSV
-  const epEdges = allEdges.filter(e => e.episode_id === ep.episode_id);
-  const edgeHeaders = ['episode_id','source_actor_id','target_actor_id','rel_type','strength','confidence','issue_tags','notes'];
-  const edgeRows = [edgeHeaders.join('\t')];
+  // Active actors set
+  const activeIds = new Set();
   epEdges.forEach(e => {
-    edgeRows.push(edgeHeaders.map(h => e[h]||'').join('\t'));
+    activeIds.add(e.source_actor_id);
+    activeIds.add(e.target_actor_id);
   });
-  downloadFile(`edges-${ep.episode_id}.tsv`, edgeRows.join('\n'), 'text/tab-separated-values');
 
-  // actors TSV
-  const actorHeaders = ['actor_id','label','side','node_type','x','y','color_key','size_base'];
-  const actorRows = [actorHeaders.join('\t')];
-  actorsList.forEach(a => {
-    actorRows.push(actorHeaders.map(h => a[h]||'').join('\t'));
+  // Groups layer
+  const gGroups = svgEl('g', { class: 'layer-groups' });
+  drawGroups(gGroups);
+  svg.appendChild(gGroups);
+
+  // Edges layer
+  const gEdges = svgEl('g', { class: 'layer-edges' });
+  epEdges.forEach(edge => {
+    const src = actorMap[edge.source_actor_id];
+    const tgt = actorMap[edge.target_actor_id];
+    if (!src || !tgt) return;
+    drawEdge(gEdges, src, tgt, edge);
   });
-  downloadFile(`actors.tsv`, actorRows.join('\n'), 'text/tab-separated-values');
+  svg.appendChild(gEdges);
+
+  // Nodes layer
+  const gNodes = svgEl('g', { class: 'layer-nodes' });
+  actors.forEach(actor => {
+    drawNode(gNodes, actor, activeIds.has(actor.actor_id), ep.episode_id, ttEl);
+  });
+  svg.appendChild(gNodes);
 }
 
-function downloadFile(filename, content, type) {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+// ── Build SVG defs (once) ─────────────────────────────────────────────────────
+function buildDefs() {
+  const svg = document.getElementById('map');
+
+  // Background
+  svg.appendChild(svgEl('rect', { width: 1100, height: 680, fill: '#0d1117' }));
+
+  const defs = svgEl('defs');
+  Object.entries(EDGE_COLORS).forEach(([r, color]) => {
+    const m = svgEl('marker', {
+      id: `arr-${r}`,
+      markerWidth: 12,
+      markerHeight: 8,
+      refX: 10,
+      refY: 4,
+      orient: 'auto',
+      markerUnits: 'userSpaceOnUse',
+    });
+    const poly = svgEl('polygon', { points: '0 0, 12 4, 0 8', fill: color });
+    m.appendChild(poly);
+    defs.appendChild(m);
+  });
+  svg.appendChild(defs);
 }
 
-async function init() {
-  await loadData();
+// ── Legend bar ────────────────────────────────────────────────────────────────
+function buildLegend() {
+  const bar = document.getElementById('legendBar');
+  Object.entries(EDGE_COLORS).forEach(([type, color]) => {
+    const item = document.createElement('div');
+    item.className = 'leg-item';
+    item.innerHTML = `<div class="leg-line" style="width:28px;background:${color}"></div><span>${EDGE_LABELS[type]}</span>`;
+    bar.insertBefore(item, bar.lastElementChild);
+  });
+}
 
-  // populate select
-  const sel = document.getElementById('ep-select');
+// ── Main ──────────────────────────────────────────────────────────────────────
+Promise.all([
+  fetch('./actors.tsv').then(r => r.text()),
+  fetch('./episodes.tsv').then(r => r.text()),
+  fetch('./edges.tsv').then(r => r.text()),
+]).then(([aTsv, eTsv, edgeTsv]) => {
+  const actors = parseTSV(aTsv);
+  const episodes = parseTSV(eTsv);
+  const edges = parseTSV(edgeTsv);
+
+  // Coerce numeric fields
+  const actorMap = {};
+  actors.forEach(a => {
+    a.x = +a.x; a.y = +a.y; a.size_base = +a.size_base;
+    actorMap[a.actor_id] = a;
+  });
+
+  buildDefs();
+  buildLegend();
+
+  // Episode dropdown
+  const dropdown = document.getElementById('dropdown');
+  const slider = document.getElementById('slider');
+  slider.max = episodes.length - 1;
+
   episodes.forEach((ep, i) => {
     const opt = document.createElement('option');
-    opt.value = ep.episode_id;
-    opt.textContent = `${i+1}. ${ep.label}`;
-    sel.appendChild(opt);
+    opt.value = i;
+    opt.textContent = `${i + 1}. ${ep.label}`;
+    dropdown.appendChild(opt);
   });
 
-  document.getElementById('ep-slider').max = episodes.length - 1;
+  let currentEp = 0;
 
-  sel.addEventListener('change', () => {
-    const idx = episodes.findIndex(e => e.episode_id === sel.value);
-    if (idx >= 0) setEpisode(idx);
+  function render(epIdx) {
+    currentEp = epIdx;
+    const ep = episodes[epIdx];
+    if (!ep) return;
+    document.getElementById('episodeTitle').textContent = ep.label;
+    document.getElementById('episodeDates').textContent = (ep.start_date || '') + ' → ' + (ep.end_date || '');
+    document.getElementById('summary').textContent = ep.short_summary || '';
+    document.getElementById('counts').textContent = ep.hostage_counts_by_phase || '';
+    slider.value = epIdx;
+    dropdown.value = epIdx;
+
+    const epEdges = edges.filter(e => e.episode_id === ep.episode_id);
+    drawMap(actors, actorMap, epEdges, ep);
+  }
+
+  slider.addEventListener('input', () => render(+slider.value));
+  dropdown.addEventListener('change', () => render(+dropdown.value));
+
+  // Export
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const ep = episodes[currentEp];
+    if (!ep) return;
+    const epEdges = edges.filter(e => e.episode_id === ep.episode_id);
+
+    const edgeHeaders = ['episode_id','source_actor_id','target_actor_id','rel_type','strength','confidence','issue_tags','notes'];
+    const eTSV = [edgeHeaders.join('\t'),
+      ...epEdges.map(e => edgeHeaders.map(h => e[h] || '').join('\t'))
+    ].join('\n');
+    dl(`${ep.episode_id}-edges.tsv`, eTSV);
+
+    const actorHeaders = ['actor_id','label','side','node_type','x','y','color_key','size_base'];
+    const aTSV = [actorHeaders.join('\t'),
+      ...actors.map(a => actorHeaders.map(h => a[h] !== undefined ? a[h] : '').join('\t'))
+    ].join('\n');
+    dl('actors.tsv', aTSV);
   });
 
-  document.getElementById('ep-slider').addEventListener('input', e => {
-    setEpisode(parseInt(e.target.value, 10));
-  });
+  function dl(name, content) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([content], { type: 'text/plain' }));
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
 
-  document.getElementById('export-btn').addEventListener('click', exportCurrentView);
+  render(0);
 
-  buildLegend();
-  setEpisode(0);
-}
-
-init().catch(err => {
-  console.error('Failed to load data:', err);
-  document.getElementById('ep-summary').textContent = 'Error loading data: ' + err.message + '. Make sure to serve this file via a local HTTP server (e.g. python -m http.server 8080).';
+}).catch(err => {
+  console.error('Load error:', err);
+  document.getElementById('episodeTitle').textContent = 'Error loading data';
+  document.getElementById('summary').textContent =
+    'Serve via HTTP server (e.g. python -m http.server 8080). Error: ' + err.message;
 });
 </script>
 </body>

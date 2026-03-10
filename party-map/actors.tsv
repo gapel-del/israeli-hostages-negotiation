@@ -1,28 +1,28 @@
 actor_id	label	side	node_type	x	y	color_key	size_base
-israel_exec	Israel War Cabinet	Israel	primary_party	140	290	israel_primary	28
-netanyahu	Benjamin Netanyahu	Israel	individual	130	185	israel_individual	22
-israel_neg	Israeli Negotiating Delegation	Israel	internal_faction	95	390	israel_faction	18
-idf	IDF General Staff	Israel	internal_faction	80	480	israel_faction	17
-hostage_coord	Hostage Coordinator Office	Israel	internal_faction	210	450	israel_faction	15
-far_right_bloc	Far-Right Coalition Bloc	Israel	internal_faction	250	155	israel_faction	18
-opposition_bloc	Opposition / Centrist Bloc	Israel	internal_faction	255	495	israel_faction	14
-hostage_families	Hostage Families Forum	Israel	internal_faction	270	570	israel_faction	16
-israel_public	Israeli Public / Protests	Israel	external_stakeholder	255	635	israel_external	14
-qatar	Qatar	mediator	mediator	480	185	mediator	24
-egypt	Egypt	mediator	mediator	475	405	mediator	22
-us	United States	mediator	mediator	480	295	mediator	26
-turkey	Turkey	mediator	mediator	565	485	mediator	16
-hamas_mil	Hamas Gaza Military Leadership	Hamas	primary_party	810	290	hamas_primary	26
-hamas_pol	Hamas Gaza Political Leadership	Hamas	internal_faction	810	410	hamas_faction	20
-hamas_doha	Hamas Doha Political Bureau	Hamas	internal_faction	790	185	hamas_faction	20
-hayya	Khalil al-Hayya	Hamas	individual	900	185	hamas_individual	18
-hamas_hardline	Hamas Hardline / Field Veto	Hamas	internal_faction	905	390	hamas_faction	16
-other_factions	Other Gaza Factions (PIJ etc.)	Hamas	external_stakeholder	905	495	hamas_external	13
-icrc	ICRC	international	external_stakeholder	480	590	international	20
-unsc	UN Security Council	international	external_stakeholder	330	55	international	20
-un_humanitarian	UN Humanitarian Bodies	international	external_stakeholder	510	55	international	16
-foreign_govts	Foreign Govts w/ Hostage Nationals	international	external_stakeholder	130	65	international	16
-diaspora_pro_israel	Diaspora Advocacy (Pro-Israel)	international	external_stakeholder	185	650	international	12
-diaspora_pro_pal	Diaspora Advocacy (Pro-Palestinian)	international	external_stakeholder	735	650	international	12
-intl_monitoring	Intl Monitoring / Coord. Cell	international	external_stakeholder	640	590	international	14
-eu_mission	EU Mission	international	external_stakeholder	625	490	international	12
+netanyahu	Benjamin Netanyahu	Israel	individual	155	68	israel_individual	22
+israel_exec	Israel War Cabinet	Israel	primary_party	155	125	israel_primary	26
+israel_neg	Negotiating Delegation	Israel	internal_faction	155	182	israel_faction	18
+idf	IDF General Staff	Israel	internal_faction	155	239	israel_faction	18
+hostage_coord	Hostage Coordinator	Israel	internal_faction	155	296	israel_faction	16
+far_right_bloc	Far-Right Coalition Bloc	Israel	internal_faction	155	357	israel_faction	18
+opposition_bloc	Opposition / Centrist Bloc	Israel	internal_faction	155	414	israel_faction	14
+hostage_families	Hostage Families Forum	Israel	internal_faction	155	471	israel_faction	16
+israel_public	Israeli Public / Protests	Israel	external_stakeholder	155	520	israel_external	14
+us	United States	mediator	mediator	550	105	mediator	26
+qatar	Qatar	mediator	mediator	550	230	mediator	24
+egypt	Egypt	mediator	mediator	550	355	mediator	22
+turkey	Turkey	mediator	mediator	550	462	mediator	16
+hamas_doha	Hamas Doha Bureau	Hamas	internal_faction	945	68	hamas_faction	20
+hayya	Khalil al-Hayya	Hamas	individual	945	130	hamas_individual	18
+hamas_pol	Hamas Gaza Political	Hamas	internal_faction	945	220	hamas_faction	20
+hamas_mil	Hamas Gaza Military	Hamas	primary_party	945	310	hamas_primary	26
+hamas_hardline	Hamas Hardline / Field Veto	Hamas	internal_faction	945	395	hamas_faction	16
+other_factions	Other Gaza Factions (PIJ)	Hamas	external_stakeholder	945	455	hamas_external	13
+foreign_govts	Foreign Govts w/ Hostage Nationals	international	external_stakeholder	105	590	international	16
+unsc	UN Security Council	international	external_stakeholder	275	590	international	20
+un_humanitarian	UN Humanitarian Bodies	international	external_stakeholder	445	590	international	16
+icrc	ICRC	international	external_stakeholder	610	590	international	20
+eu_mission	EU Mission	international	external_stakeholder	760	590	international	12
+intl_monitoring	Intl Monitoring Cell	international	external_stakeholder	915	590	international	14
+diaspora_pro_israel	Diaspora (Pro-Israel)	international	external_stakeholder	160	648	international	12
+diaspora_pro_pal	Diaspora (Pro-Palestinian)	international	external_stakeholder	940	648	international	12
