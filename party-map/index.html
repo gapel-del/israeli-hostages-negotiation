@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Israeli–Hamas Hostage Negotiation — Influence Network</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%230d1117'/><path d='M48 7 L76 15 L91 18 L93 30 L89 50 L73 70 L44 88 L22 95 L10 95 L7 74 L11 43 L43 22Z' fill='%23e3b341'/></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
@@ -431,8 +432,10 @@ function getPillHalf(x, y) {
   return getRegion(x, y) === 'international' ? 74 : 105;
 }
 
-function pillEdgePoint(ax, ay, bx, by) {
-  const ph = getPillHalf(ax, ay);
+const ARROW_GAP = 12; // arrowhead length in user-space units; used to prevent stroke/head overlap
+
+function pillEdgePoint(ax, ay, bx, by, extraGap = 0) {
+  const ph = getPillHalf(ax, ay) + extraGap;
   const dx = bx - ax, dy = by - ay;
   const len = Math.sqrt(dx * dx + dy * dy) || 1;
   return [ax + (dx / len) * ph, ay + (dy / len) * ph];
@@ -467,19 +470,19 @@ function drawEdge(parent, src, tgt, edge) {
 
     // Start/end points on pill edge pointing toward the control
     const [sx2, sy2] = pillEdgePoint(sx, sy, outX, sy);
-    const [tx2, ty2] = pillEdgePoint(tx, ty, outX, ty);
+    const [tx2, ty2] = pillEdgePoint(tx, ty, outX, ty, ARROW_GAP);
     d = `M ${sx2} ${sy2} C ${outX} ${sy} ${outX} ${ty} ${tx2} ${ty2}`;
   } else if (tgtRegion === 'international' || srcRegion === 'international') {
     // Edges to/from international row — quadratic downward curve
     const [sx2, sy2] = pillEdgePoint(sx, sy, tx, ty);
-    const [tx2, ty2] = pillEdgePoint(tx, ty, sx, sy);
+    const [tx2, ty2] = pillEdgePoint(tx, ty, sx, sy, ARROW_GAP);
     const cpx = (sx + tx) / 2;
     const cpy = (sy + ty) / 2 + 30;
     d = `M ${sx2} ${sy2} Q ${cpx} ${cpy} ${tx2} ${ty2}`;
   } else {
     // Inter-group: S-curve cubic bezier
     const [sx2, sy2] = pillEdgePoint(sx, sy, tx, ty);
-    const [tx2, ty2] = pillEdgePoint(tx, ty, sx, sy);
+    const [tx2, ty2] = pillEdgePoint(tx, ty, sx, sy, ARROW_GAP);
     const cpOffset = 160;
     const cp1x = sx2 + (tx2 > sx2 ? cpOffset : -cpOffset);
     const cp1y = sy2;
@@ -631,14 +634,14 @@ function buildDefs() {
   Object.entries(EDGE_COLORS).forEach(([r, color]) => {
     const m = svgEl('marker', {
       id: `arr-${r}`,
-      markerWidth: 12,
-      markerHeight: 8,
-      refX: 10,
-      refY: 4,
+      markerWidth: 14,
+      markerHeight: 10,
+      refX: 0,
+      refY: 5,
       orient: 'auto',
       markerUnits: 'userSpaceOnUse',
     });
-    const poly = svgEl('polygon', { points: '0 0, 12 4, 0 8', fill: color });
+    const poly = svgEl('polygon', { points: '0 0, 14 5, 0 10', fill: color });
     m.appendChild(poly);
     defs.appendChild(m);
   });
@@ -861,7 +864,7 @@ Promise.all([
       const dx = tx-sx, dy = ty-sy;
       const len = Math.sqrt(dx*dx+dy*dy)||1;
       const sx2 = sx+(dx/len)*PH, sy2 = sy+(dy/len)*PH;
-      const tx2 = tx-(dx/len)*PH, ty2 = ty-(dy/len)*PH;
+      const tx2 = tx-(dx/len)*(PH+ARROW_GAP), ty2 = ty-(dy/len)*(PH+ARROW_GAP);
 
       // S-curve for inter-group, Q for to/from international
       const srcIntl = sy > 380, tgtIntl = ty > 380;

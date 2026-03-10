@@ -10,7 +10,7 @@ ep1	hayya	hamas_doha	pressures	0.55	0.70	negotiating_positions	Hayya leads exter
 ep1	netanyahu	israel_exec	pressures	0.80	0.90	deal_approval	Netanyahu approves or rejects; conditional extensions tied to 10/day releases
 ep1	hostage_families	israel_exec	pressures	0.50	0.85	hostage_release_priority	Civil society pressure for releases
 ep1	icrc	israel_exec	implements_transfer	0.80	0.95	hostage_handover	ICRC convoy transfer operations from day one of releases
-ep1	icrc	hamas_mil	implements_transfer	0.80	0.95	hostage_handover	ICRC receives hostages from Hamas custody
+ep1	hamas_mil	icrc	implements_transfer	0.80	0.95	hostage_handover	Hamas transfers hostage custody to ICRC for handover
 ep1	israel_exec	hamas_mil	conflict_background	1.00	1.00	ongoing_war	Active military operations; war resumes Dec 1 2023
 ep1	foreign_govts	qatar	pressures	0.40	0.75	foreign_nationals	Thailand/Philippines/Germany seek national releases; German FM confirmed 4 nationals
 ep1	idf	israel_exec	pressures	0.60	0.85	security_constraints|resumption_readiness	IDF maintains readiness to resume; shapes extension conditions
@@ -73,7 +73,7 @@ ep5	hamas_doha	hamas_mil	pressures	0.70	0.85	deal_acceptance	Doha bureau presses
 ep5	hayya	hamas_doha	pressures	0.65	0.80	negotiation_positions
 ep5	hamas_pol	hamas_doha	pressures	0.55	0.75	ceasefire_continuation
 ep5	icrc	israel_exec	implements_transfer	0.90	0.95	hostage_handover|dignity_standards	ICRC calls for privacy and dignity; states degrading treatment unacceptable
-ep5	icrc	hamas_mil	implements_transfer	0.90	0.95	hostage_handover|dignity_standards	ICRC facilitates transfers; public standards statements
+ep5	hamas_mil	icrc	implements_transfer	0.90	0.95	hostage_handover|dignity_standards	Hamas transfers hostages to ICRC; ICRC publicly flags dignity standards
 ep5	far_right_bloc	netanyahu	veto_or_exit_threat	0.92	0.95	anti_deal_resignation	Ben-Gvir threatens then resigns; far-right ministers quit cabinet
 ep5	netanyahu	israel_exec	pressures	0.80	0.90	deal_management|coalition_strain	Netanyahu manages coalition strain and deal implementation
 ep5	opposition_bloc	israel_exec	pressures	0.60	0.80	deal_support	Alternative political support for deal replaces resigned coalition members
@@ -94,7 +94,7 @@ ep6	egypt	hamas_pol	mediates	0.72	0.90	final_ceasefire
 ep6	turkey	hamas_pol	mediates	0.62	0.80	signing_ceremony	Turkey joins as mediator/signatory at Sharm el-Sheikh with Trump
 ep6	turkey	israel_exec	mediates	0.42	0.75	signing_ceremony
 ep6	icrc	israel_exec	implements_transfer	0.90	0.95	hostage_return|remains_recovery	ICRC begins Oct 13 operations; remains recovery ongoing and uncertain
-ep6	icrc	hamas_mil	implements_transfer	0.90	0.95	hostage_return|remains_recovery	ICRC facilitates return; integrity of remains-recovery operations challenged
+ep6	hamas_mil	icrc	implements_transfer	0.90	0.95	hostage_return|remains_recovery	Hamas transfers living hostages and remains to ICRC; remains-recovery integrity challenged
 ep6	intl_monitoring	israel_exec	guarantees_or_monitoring	0.82	0.90	coordination_task_force	US deploys up to 200 troops to Israel for task force; no troops into Gaza
 ep6	intl_monitoring	hamas_mil	guarantees_or_monitoring	0.52	0.75	stabilization_monitoring
 ep6	eu_mission	israel_exec	guarantees_or_monitoring	0.62	0.85	rafah_crossing_supervision	EU delegation supervises Rafah crossing per agreement terms
