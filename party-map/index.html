@@ -470,13 +470,54 @@ function drawEdge(parent, src, tgt, edge) {
     'stroke-width': strokeW,
     opacity: 0.8,
     'marker-end': `url(#arr-${edge.rel_type})`,
+    'pointer-events': 'none',
   });
 
   if (confidence < 0.6) {
     path.setAttribute('stroke-dasharray', '6 4');
   }
 
+  // Wide invisible hit-area for easy hovering
+  const ttEl = document.getElementById('tooltip');
+  const hit = svgEl('path', {
+    d,
+    fill: 'none',
+    stroke: 'transparent',
+    'stroke-width': 14,
+    cursor: 'crosshair',
+  });
+  hit.addEventListener('mouseenter', (e) => showEdgeTooltip(e, edge, src, tgt, color, ttEl));
+  hit.addEventListener('mousemove',  (e) => moveTooltip(e, ttEl));
+  hit.addEventListener('mouseleave', ()  => hideTooltip(ttEl));
+
   parent.appendChild(path);
+  parent.appendChild(hit);
+}
+
+// ── Edge Tooltip ──────────────────────────────────────────────────────────────
+function showEdgeTooltip(e, edge, src, tgt, color, ttEl) {
+  const conf  = parseFloat(edge.confidence) || 1;
+  const str   = parseFloat(edge.strength)   || 0;
+  const bars  = '█'.repeat(Math.round(str * 5)) + '░'.repeat(5 - Math.round(str * 5));
+  const tags  = (edge.issue_tags || '').split('|').filter(Boolean).map(t => t.replace(/_/g,' ')).join(' · ');
+  const notes = (edge.notes || '').trim();
+  const relLabel = EDGE_LABELS[edge.rel_type] || edge.rel_type;
+  const confLabel = conf >= 0.8 ? 'High' : conf >= 0.6 ? 'Moderate' : 'Low';
+
+  let html = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:0.35rem">`;
+  html += `<div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></div>`;
+  html += `<strong style="color:#e6edf3;font-size:0.82rem">${relLabel}</strong></div>`;
+  html += `<div class="tt-meta">${src.label} → ${tgt.label}</div>`;
+  html += `<div style="margin:0.4rem 0;display:flex;gap:1rem;font-size:0.7rem">`;
+  html += `<span>Strength <span style="color:#e3b341;font-family:monospace">${bars}</span> ${Math.round(str*100)}%</span>`;
+  html += `<span>Confidence <span style="color:${conf>=0.6?'#3fb950':'#f85149'}">${confLabel}</span></span>`;
+  html += `</div>`;
+  if (tags) html += `<div class="tt-sec">Issues</div><div style="color:#8b949e;font-size:0.72rem">${tags}</div>`;
+  if (notes) html += `<div class="tt-sec" style="margin-top:0.4rem">Notes</div><div style="color:#cdd5df;font-size:0.73rem;line-height:1.5">${notes}</div>`;
+
+  ttEl.innerHTML = html;
+  ttEl.style.display = 'block';
+  moveTooltip(e, ttEl);
 }
 
 // ── Tooltip ───────────────────────────────────────────────────────────────────
