@@ -71,6 +71,22 @@ select {
 #tooltip .tt-obj { color: #3fb950; padding-left: 0.5rem; }
 #tooltip .tt-red { color: #f85149; padding-left: 0.5rem; }
 #tooltip .tt-none { color: #6e7681; font-style: italic; font-size: 0.72rem; }
+.simplified-section {
+  border-top: 1px solid #21262d;
+  background: #0d1117;
+  padding: 1rem 1.25rem 1.5rem;
+}
+.simplified-header {
+  display: flex; align-items: baseline; gap: 1.5rem;
+  padding: 0 0.5rem 0.75rem;
+}
+.simplified-desc {
+  font-size: 0.75rem; color: #6e7681; line-height: 1.5;
+}
+.simp-viz-wrap {
+  display: flex; justify-content: center;
+}
+#simpMap { width: 100%; max-width: 1000px; height: auto; display: block; }
 </style>
 </head>
 <body>
@@ -99,6 +115,15 @@ select {
   </div>
   <div class="legend-bar" id="legendBar">
     <span class="leg-dim">Dimmed = not active in this episode</span>
+  </div>
+  <div class="simplified-section">
+    <div class="simplified-header">
+      <span class="eyebrow">Simplified View</span>
+      <p class="simplified-desc">Actors grouped into principal blocs. Edges show the most significant relationship between each pair per episode.</p>
+    </div>
+    <div class="simp-viz-wrap">
+      <svg id="simpMap" viewBox="0 0 1000 490" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
   </div>
 </div>
 <div id="tooltip"></div>
@@ -509,7 +534,7 @@ function showEdgeTooltip(e, edge, src, tgt, color, ttEl) {
   html += `<strong style="color:#e6edf3;font-size:0.82rem">${relLabel}</strong></div>`;
   html += `<div class="tt-meta">${src.label} → ${tgt.label}</div>`;
   html += `<div style="margin:0.4rem 0;display:flex;gap:1rem;font-size:0.7rem">`;
-  html += `<span>Strength <span style="color:#e3b341;font-family:monospace">${bars}</span> ${Math.round(str*100)}%</span>`;
+  html += `<span>Strength <span style="color:#e3b341;font-family:monospace">${bars}</span></span>`;
   html += `<span>Confidence <span style="color:${conf>=0.6?'#3fb950':'#f85149'}">${confLabel}</span></span>`;
   html += `</div>`;
   if (tags) html += `<div class="tt-sec">Issues</div><div style="color:#8b949e;font-size:0.72rem">${tags}</div>`;
@@ -678,6 +703,7 @@ Promise.all([
 
     const epEdges = edges.filter(e => e.episode_id === ep.episode_id);
     drawMap(actors, actorMap, epEdges, ep);
+    drawSimplified(epEdges);
   }
 
   slider.addEventListener('input', () => render(+slider.value));
@@ -709,6 +735,178 @@ Promise.all([
     document.body.appendChild(a);
     a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+
+  // ══════════════════════════════════════════════════════
+  // SIMPLIFIED MAP
+  // ══════════════════════════════════════════════════════
+
+  const SIMP_ACTORS = [
+    // Israel column (x≈140)
+    { id:'sg_israel_gov', label:'Israeli Government',    x:140, y:115, color:'#388bfd', bg:'#0d2a56' },
+    { id:'sg_israel_civ', label:'Israeli Civil Society', x:140, y:225, color:'#1f6feb', bg:'#0a1e3d' },
+    // Mediators (x≈500)
+    { id:'sg_us',    label:'United States', x:500, y: 85, color:'#e3b341', bg:'#3d2e00' },
+    { id:'sg_qatar', label:'Qatar',         x:500, y:175, color:'#e3b341', bg:'#3d2e00' },
+    { id:'sg_egypt', label:'Egypt',         x:500, y:265, color:'#e3b341', bg:'#3d2e00' },
+    { id:'sg_turkey',label:'Turkey',        x:500, y:345, color:'#c9943a', bg:'#2a1e00' },
+    // Hamas column (x≈860)
+    { id:'sg_hamas_pol', label:'Hamas Political', x:860, y:115, color:'#da3633', bg:'#3d0d0c' },
+    { id:'sg_hamas_mil', label:'Hamas Military',  x:860, y:225, color:'#b91c1c', bg:'#280807' },
+    // International row (y≈430)
+    { id:'sg_icrc',       label:'ICRC',                x:130, y:430, color:'#bc8cff', bg:'#1e1040' },
+    { id:'sg_un',         label:'UN Bodies',            x:300, y:430, color:'#bc8cff', bg:'#1e1040' },
+    { id:'sg_foreign',    label:'Foreign Governments',  x:500, y:430, color:'#bc8cff', bg:'#1e1040' },
+    { id:'sg_monitoring', label:'Intl Monitoring',      x:710, y:430, color:'#bc8cff', bg:'#1e1040' },
+    { id:'sg_diaspora',   label:'Diaspora Groups',      x:890, y:430, color:'#bc8cff', bg:'#1e1040' },
+  ];
+
+  const SIMP_ACTOR_MAP = {
+    netanyahu:          'sg_israel_gov',
+    israel_exec:        'sg_israel_gov',
+    israel_neg:         'sg_israel_gov',
+    idf:                'sg_israel_gov',
+    hostage_coord:      'sg_israel_gov',
+    far_right_bloc:     'sg_israel_gov',
+    opposition_bloc:    'sg_israel_gov',
+    hostage_families:   'sg_israel_civ',
+    israel_public:      'sg_israel_civ',
+    us:                 'sg_us',
+    qatar:              'sg_qatar',
+    egypt:              'sg_egypt',
+    turkey:             'sg_turkey',
+    hamas_doha:         'sg_hamas_pol',
+    hayya:              'sg_hamas_pol',
+    hamas_pol:          'sg_hamas_pol',
+    hamas_mil:          'sg_hamas_mil',
+    hamas_hardline:     'sg_hamas_mil',
+    other_factions:     'sg_hamas_mil',
+    icrc:               'sg_icrc',
+    unsc:               'sg_un',
+    un_humanitarian:    'sg_un',
+    foreign_govts:      'sg_foreign',
+    diaspora_pro_israel:'sg_diaspora',
+    diaspora_pro_pal:   'sg_diaspora',
+    intl_monitoring:    'sg_monitoring',
+    eu_mission:         'sg_monitoring',
+  };
+
+  // Build lookup for simplified actors
+  const simpActorMap = {};
+  SIMP_ACTORS.forEach(a => { simpActorMap[a.id] = a; });
+
+  // Aggregate detailed edges → simplified edges (keep highest-strength per source→target→rel_type pair)
+  function aggregateSimpEdges(epEdges) {
+    const map = {};
+    epEdges.forEach(e => {
+      const sid = SIMP_ACTOR_MAP[e.source_actor_id];
+      const tid = SIMP_ACTOR_MAP[e.target_actor_id];
+      if (!sid || !tid || sid === tid) return;
+      const key = `${sid}→${tid}→${e.rel_type}`;
+      const str = parseFloat(e.strength) || 0;
+      if (!map[key] || str > parseFloat(map[key].strength)) {
+        map[key] = { ...e, source_actor_id: sid, target_actor_id: tid };
+      }
+    });
+    return Object.values(map);
+  }
+
+  // Draw the simplified SVG (builds from scratch each episode)
+  function drawSimplified(epEdges) {
+    const svg = document.getElementById('simpMap');
+    // Clear
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    // Background
+    svg.appendChild(svgEl('rect', { width:1000, height:490, fill:'#0d1117' }));
+
+    // ── Group boxes ──────────────────────────────────────────────
+    function sBox(x, y, w, h, fill, stroke, label, lx, ly) {
+      svg.appendChild(svgEl('rect', { x, y, width:w, height:h, rx:10,
+        fill, stroke, 'stroke-width':1.5 }));
+      if (label) {
+        const t = svgEl('text', { x:lx, y:ly, 'text-anchor':'middle',
+          fill:stroke, 'font-size':10, 'font-weight':700, 'letter-spacing':2,
+          'font-family':'Inter,sans-serif', 'pointer-events':'none' });
+        t.textContent = label;
+        svg.appendChild(t);
+      }
+    }
+
+    sBox(10,  10, 268, 270, 'rgba(56,139,253,0.06)',  '#1f6feb', 'ISRAEL',    144, 27);
+    sBox(300, 10, 400, 380, 'rgba(227,179,65,0.06)',  '#e3b341', 'MEDIATORS', 500, 27);
+    sBox(722, 10, 268, 270, 'rgba(218,54,51,0.06)',   '#da3633', 'HAMAS',     856, 27);
+    sBox(10, 400, 980,  80, 'rgba(188,140,255,0.06)', '#bc8cff', 'INTERNATIONAL & EXTERNAL', 500, 416);
+
+    // Active simplified actors (those involved in at least one edge)
+    const simpEdges = aggregateSimpEdges(epEdges);
+    const activeIds = new Set();
+    simpEdges.forEach(e => { activeIds.add(e.source_actor_id); activeIds.add(e.target_actor_id); });
+
+    // ── Edges ─────────────────────────────────────────────────────
+    const ttEl = document.getElementById('tooltip');
+
+    simpEdges.forEach(e => {
+      const src = simpActorMap[e.source_actor_id];
+      const tgt = simpActorMap[e.target_actor_id];
+      if (!src || !tgt) return;
+
+      const color = EDGE_COLORS[e.rel_type] || '#8b949e';
+      const str   = parseFloat(e.strength) || 0.5;
+      const conf  = parseFloat(e.confidence) || 1;
+      const sw    = Math.max(1.5, str * 5);
+
+      const sx = src.x, sy = src.y, tx = tgt.x, ty = tgt.y;
+      const PH = 90; // pill half-width for simplified
+      const dx = tx-sx, dy = ty-sy;
+      const len = Math.sqrt(dx*dx+dy*dy)||1;
+      const sx2 = sx+(dx/len)*PH, sy2 = sy+(dy/len)*PH;
+      const tx2 = tx-(dx/len)*PH, ty2 = ty-(dy/len)*PH;
+
+      // S-curve for inter-group, Q for to/from international
+      const srcIntl = sy > 380, tgtIntl = ty > 380;
+      let d;
+      if (srcIntl || tgtIntl) {
+        const cpx = (sx+tx)/2, cpy = (sy+ty)/2 + 20;
+        d = `M ${sx2} ${sy2} Q ${cpx} ${cpy} ${tx2} ${ty2}`;
+      } else {
+        const off = 140;
+        const cp1x = sx2+(tx2>sx2?off:-off), cp1y=sy2;
+        const cp2x = tx2-(tx2>sx2?off:-off), cp2y=ty2;
+        d = `M ${sx2} ${sy2} C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${tx2} ${ty2}`;
+      }
+
+      const path = svgEl('path', { d, fill:'none', stroke:color, 'stroke-width':sw,
+        opacity:0.85, 'marker-end':`url(#arr-${e.rel_type})`, 'pointer-events':'none' });
+      if (conf < 0.6) path.setAttribute('stroke-dasharray','6 4');
+      svg.appendChild(path);
+
+      // Hit area
+      const hit = svgEl('path', { d, fill:'none', stroke:'transparent', 'stroke-width':16, cursor:'crosshair' });
+      hit.addEventListener('mouseenter', ev => showEdgeTooltip(ev, e, src, tgt, color, ttEl));
+      hit.addEventListener('mousemove',  ev => moveTooltip(ev, ttEl));
+      hit.addEventListener('mouseleave', ()  => hideTooltip(ttEl));
+      svg.appendChild(hit);
+    });
+
+    // ── Nodes ─────────────────────────────────────────────────────
+    const PW = 180; // pill full-width
+    SIMP_ACTORS.forEach(a => {
+      const active = activeIds.has(a.id);
+      const op = active ? 1 : 0.2;
+      const g = svgEl('g', { transform:`translate(${a.x},${a.y})`, opacity:op, cursor:'pointer' });
+
+      g.appendChild(svgEl('rect', { x:-(PW/2), y:-15, width:PW, height:30, rx:15,
+        fill:a.bg, stroke:a.color, 'stroke-width':1.5 }));
+
+      const t = svgEl('text', { x:0, y:4, 'text-anchor':'middle',
+        'font-size':11, fill:'#e6edf3', 'font-family':'Inter,sans-serif',
+        'font-weight':500, 'pointer-events':'none' });
+      t.textContent = a.label;
+      g.appendChild(t);
+
+      svg.appendChild(g);
+    });
   }
 
   render(0);
