@@ -876,10 +876,10 @@ Promise.all([
         const cpx = (sx+tx)/2, cpy = (sy+ty)/2 + 20;
         d = `M ${sx2} ${sy2} Q ${cpx} ${cpy} ${tx2} ${ty2}`;
       } else if (inIsrael || inHamas) {
-        // Intra-group (same column) — curve outward past group edge
+        // Intra-group (same column) — curve outward; keep control points inside viewBox
         const dir  = inIsrael ? -1 : 1;
-        const outX = inIsrael ? -50 : 1050;
-        const sx2g = sx + dir * PH,            sy2g = sy;
+        const outX = inIsrael ? 20 : 980;
+        const sx2g = sx + dir * PH,               sy2g = sy;
         const tx2g = tx + dir * (PH + ARROW_GAP), ty2g = ty;
         d = `M ${sx2g} ${sy2g} C ${outX} ${sy} ${outX} ${ty} ${tx2g} ${ty2g}`;
       } else {
