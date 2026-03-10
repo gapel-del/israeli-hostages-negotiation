@@ -41,11 +41,12 @@ select {
 }
 #exportBtn:hover { border-color: #58a6ff; color: #58a6ff; }
 .summary-bar {
-  padding: 0.75rem 1.75rem; background: #0d1117;
-  border-bottom: 1px solid #21262d; display: flex; gap: 2rem; align-items: baseline;
+  padding: 0.6rem 1.75rem; background: #0d1117;
+  border-bottom: 1px solid #21262d; display: flex; gap: 1.5rem;
+  align-items: flex-start; flex-wrap: wrap;
 }
 #summary { font-size: 0.8rem; color: #8b949e; line-height: 1.5; max-width: 700px; }
-.counts { font-size: 0.75rem; color: #e3b341; font-weight: 600; white-space: nowrap; }
+.counts { font-size: 0.73rem; color: #e3b341; font-weight: 600; max-width: 380px; line-height: 1.5; }
 .viz-wrap {
   flex: 1; padding: 1rem 1.25rem 0.5rem;
   display: flex; justify-content: center;
@@ -234,8 +235,11 @@ function svgText(parent, txt, attrs) {
 
 // ── Pill label truncation ─────────────────────────────────────────────────────
 function truncLabel(label, maxLen) {
-  if (label.length <= maxLen) return label;
-  return label.slice(0, maxLen - 1) + '…';
+  if (!label || label.length <= maxLen) return label || '';
+  // Try to break at a word boundary
+  const cut = label.slice(0, maxLen - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > maxLen - 6 ? cut.slice(0, lastSpace) : cut) + '…';
 }
 
 // ── TSV parser ────────────────────────────────────────────────────────────────
@@ -251,11 +255,12 @@ function parseTSV(text) {
 }
 
 // ── Group region helpers ──────────────────────────────────────────────────────
-function getRegion(x) {
+function getRegion(x, y) {
+  y = y || 0;
+  if (y > 550) return 'international';
   if (x < 310) return 'israel';
   if (x < 800) return 'mediator';
-  if (x < 990) return 'hamas';
-  return 'international';
+  return 'hamas';
 }
 
 // ── drawGroups ────────────────────────────────────────────────────────────────
@@ -284,18 +289,18 @@ function drawGroups(g) {
   );
   // Gov't & Security sub-box
   subBox(
-    { x: 20, y: 38, width: 272, height: 390, rx: 6 },
+    { x: 20, y: 40, width: 272, height: 395, rx: 6 },
     "GOV'T & SECURITY",
-    { x: 156, y: 52, 'text-anchor': 'middle', fill: '#388bfd66',
-      'font-size': 9, 'font-weight': 600, 'letter-spacing': 1.5,
+    { x: 156, y: 47, 'text-anchor': 'middle', fill: '#388bfd66',
+      'font-size': 8, 'font-weight': 600, 'letter-spacing': 1.5,
       'font-family': 'Inter,sans-serif', 'pointer-events': 'none' }
   );
   // Civil Society sub-box
-  const civilEl = svgEl('rect', { x: 20, y: 438, width: 272, height: 115, rx: 6,
+  const civilEl = svgEl('rect', { x: 20, y: 444, width: 272, height: 108, rx: 6,
     fill: 'rgba(56,139,253,0.04)', stroke: '#1f6feb33', 'stroke-dasharray': '4 2' });
   g.appendChild(civilEl);
-  svgText(g, 'CIVIL SOCIETY', { x: 156, y: 452, 'text-anchor': 'middle',
-    fill: '#388bfd66', 'font-size': 9, 'font-weight': 600, 'letter-spacing': 1.5,
+  svgText(g, 'CIVIL SOCIETY', { x: 156, y: 448, 'text-anchor': 'middle',
+    fill: '#388bfd66', 'font-size': 8, 'font-weight': 600, 'letter-spacing': 1.5,
     'font-family': 'Inter,sans-serif', 'pointer-events': 'none' });
 
   // ── Mediators ───────────────────────────────────────────────────────────────
@@ -319,22 +324,22 @@ function drawGroups(g) {
   );
   // Hamas sub-boxes
   const hamasSubAttrs = { fill: 'rgba(218,54,51,0.04)', stroke: '#da363333', 'stroke-dasharray': '4 2' };
-  g.appendChild(svgEl('rect', { x: 808, y: 38, width: 272, height: 220, rx: 6, ...hamasSubAttrs }));
-  svgText(g, 'POLITICAL (DOHA)', { x: 944, y: 52, 'text-anchor': 'middle',
-    fill: '#da363366', 'font-size': 9, 'font-weight': 600, 'letter-spacing': 1.5,
+  g.appendChild(svgEl('rect', { x: 808, y: 38, width: 272, height: 228, rx: 6, ...hamasSubAttrs }));
+  svgText(g, 'POLITICAL (DOHA)', { x: 944, y: 47, 'text-anchor': 'middle',
+    fill: '#da363366', 'font-size': 8, 'font-weight': 600, 'letter-spacing': 1.5,
     'font-family': 'Inter,sans-serif', 'pointer-events': 'none' });
-  g.appendChild(svgEl('rect', { x: 808, y: 268, width: 272, height: 285, rx: 6, ...hamasSubAttrs }));
-  svgText(g, 'GAZA LEADERSHIP', { x: 944, y: 284, 'text-anchor': 'middle',
-    fill: '#da363366', 'font-size': 9, 'font-weight': 600, 'letter-spacing': 1.5,
+  g.appendChild(svgEl('rect', { x: 808, y: 274, width: 272, height: 282, rx: 6, ...hamasSubAttrs }));
+  svgText(g, 'GAZA LEADERSHIP', { x: 944, y: 279, 'text-anchor': 'middle',
+    fill: '#da363366', 'font-size': 8, 'font-weight': 600, 'letter-spacing': 1.5,
     'font-family': 'Inter,sans-serif', 'pointer-events': 'none' });
 
   // ── International row ───────────────────────────────────────────────────────
   box(
-    { x: 12, y: 570, width: 1076, height: 100, rx: 10,
+    { x: 12, y: 562, width: 1076, height: 108, rx: 10,
       fill: 'rgba(188,140,255,0.06)', stroke: '#bc8cff', 'stroke-width': 1.5 },
     'INTERNATIONAL & EXTERNAL',
-    { x: 550, y: 584, 'text-anchor': 'middle', fill: '#bc8cff',
-      'font-size': 11, 'font-weight': 700, 'letter-spacing': 2,
+    { x: 550, y: 576, 'text-anchor': 'middle', fill: '#bc8cff',
+      'font-size': 10, 'font-weight': 700, 'letter-spacing': 1.5,
       'font-family': 'Inter,sans-serif', 'pointer-events': 'none' }
   );
 }
@@ -346,6 +351,15 @@ function drawNode(parent, actor, active, epId, tooltip) {
   const bg = NODE_BG[ck] || '#111';
   const stroke = NODE_STROKE[ck] || '#555';
   const opacity = active ? 1 : 0.22;
+  const region = getRegion(x, y);
+
+  // Pill dimensions by region
+  const isIntl = region === 'international';
+  const pw = isIntl ? 148 : 210;   // pill half-width
+  const ph = 30;                    // pill height
+  const dotCx = -(pw/2 - 14);      // dot position
+  const textX  = -(pw/2 - 24);     // text start
+  const maxChars = isIntl ? 22 : 30;
 
   const g = svgEl('g', {
     class: 'actor',
@@ -357,21 +371,20 @@ function drawNode(parent, actor, active, epId, tooltip) {
 
   // Pill background
   g.appendChild(svgEl('rect', {
-    x: -65, y: -15, width: 130, height: 30, rx: 15,
+    x: -(pw/2), y: -(ph/2), width: pw, height: ph, rx: ph/2,
     fill: bg, stroke, 'stroke-width': 1.2,
   }));
 
   // Type dot
   g.appendChild(svgEl('circle', {
-    cx: -52, cy: 0, r: 4.5,
-    fill: stroke,
-    opacity: 0.9,
+    cx: dotCx, cy: 0, r: 4.5,
+    fill: stroke, opacity: 0.9,
   }));
 
-  // Label text
-  const label = truncLabel(actor.label, actor.node_type === 'primary_party' ? 20 : 16);
+  // Label text — no truncation for most, only if truly too long
+  const label = truncLabel(actor.label, maxChars);
   const textEl = svgEl('text', {
-    x: -43, y: 4,
+    x: textX, y: 4,
     'font-size': 10.5,
     fill: '#e6edf3',
     'font-family': 'Inter,sans-serif',
@@ -389,13 +402,15 @@ function drawNode(parent, actor, active, epId, tooltip) {
 }
 
 // ── drawEdge ──────────────────────────────────────────────────────────────────
-const PILL_HALF = 65; // half-width of pill in px
+function getPillHalf(x, y) {
+  return getRegion(x, y) === 'international' ? 74 : 105;
+}
 
 function pillEdgePoint(ax, ay, bx, by) {
-  // Offset pill center by PILL_HALF in direction of b
+  const ph = getPillHalf(ax, ay);
   const dx = bx - ax, dy = by - ay;
   const len = Math.sqrt(dx * dx + dy * dy) || 1;
-  return [ax + (dx / len) * PILL_HALF, ay + (dy / len) * PILL_HALF];
+  return [ax + (dx / len) * ph, ay + (dy / len) * ph];
 }
 
 function drawEdge(parent, src, tgt, edge) {
@@ -406,8 +421,8 @@ function drawEdge(parent, src, tgt, edge) {
   const confidence = parseFloat(edge.confidence) || 1.0;
   const strokeW = Math.max(1, strength * 5);
 
-  const srcRegion = getRegion(sx);
-  const tgtRegion = getRegion(tx);
+  const srcRegion = getRegion(sx, sy);
+  const tgtRegion = getRegion(tx, ty);
   const sameGroup = srcRegion === tgtRegion;
 
   let d;
@@ -416,11 +431,11 @@ function drawEdge(parent, src, tgt, edge) {
     // Intra-group: curve out to the right of the group
     let outX;
     if (srcRegion === 'israel') {
-      outX = 300; // curve to right edge of Israel box
+      outX = 310; // curve to right edge of Israel box
     } else if (srcRegion === 'hamas') {
-      outX = 1090; // curve to right edge of Hamas box
+      outX = 1092; // curve to right edge of Hamas box
     } else if (srcRegion === 'mediator') {
-      outX = 780; // curve to right of mediator box
+      outX = 785; // curve to right of mediator box
     } else {
       outX = Math.max(sx, tx) + 80;
     }
