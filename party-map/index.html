@@ -432,11 +432,40 @@ function getPillHalf(x, y) {
   return getRegion(x, y) === 'international' ? 74 : 105;
 }
 
+// Geometric intersection of a ray from (ax,ay) toward (bx,by) with the pill boundary.
+// Pill = stadium shape: two semicircle caps of radius hh joined by a rectangle.
 function pillEdgePoint(ax, ay, bx, by) {
-  const ph = getPillHalf(ax, ay);
-  const dx = bx - ax, dy = by - ay;
-  const len = Math.sqrt(dx * dx + dy * dy) || 1;
-  return [ax + (dx / len) * ph, ay + (dy / len) * ph];
+  const hw = getPillHalf(ax, ay); // half-width  (105 main, 74 intl)
+  const hh = 15;                  // half-height = cap radius
+  const fw = hw - hh;             // x-distance from center to cap center
+
+  const ddx = bx - ax, ddy = by - ay;
+  const len = Math.sqrt(ddx*ddx + ddy*ddy) || 1;
+  const ux = ddx/len, uy = ddy/len;
+
+  const cands = [];
+
+  // Flat top/bottom edges (y = ±hh), valid only over the straight segment |x| ≤ fw
+  if (Math.abs(uy) > 1e-9) {
+    const t = hh / Math.abs(uy);
+    if (Math.abs(ux * t) <= fw) cands.push(t);
+  }
+
+  // Rounded end caps: circles of radius hh at (±fw, 0)
+  // Solve: (ux·t − cx)² + (uy·t)² = hh²  → t² − 2·cx·ux·t + (cx²−hh²) = 0
+  const disc = hh*hh - fw*fw*uy*uy;
+  if (disc >= 0) {
+    const sq = Math.sqrt(disc);
+    // Right cap (cx = +fw): take solutions where x = ux·t ≥ fw (outer half only)
+    for (const t of [ux*fw + sq, ux*fw - sq])
+      if (t > 1e-6 && ux*t >= fw - 1e-6) cands.push(t);
+    // Left cap (cx = −fw): solutions where x = ux·t ≤ −fw
+    for (const t of [-ux*fw + sq, -ux*fw - sq])
+      if (t > 1e-6 && ux*t <= -fw + 1e-6) cands.push(t);
+  }
+
+  const t = cands.length ? Math.min(...cands) : hw;
+  return [ax + ux*t, ay + uy*t];
 }
 
 function drawEdge(parent, src, tgt, edge) {
@@ -845,30 +874,38 @@ Promise.all([
       const sw    = Math.max(1.5, str * 5);
 
       const sx = src.x, sy = src.y, tx = tgt.x, ty = tgt.y;
-      const PH = 90; // pill half-width for simplified
+      // Geometric pill intersection for simplified pills (hw=90, hh=15, fw=75)
       const dx = tx-sx, dy = ty-sy;
       const len = Math.sqrt(dx*dx+dy*dy)||1;
-      const sx2 = sx+(dx/len)*PH, sy2 = sy+(dy/len)*PH;
-      const tx2 = tx-(dx/len)*PH,          ty2 = ty-(dy/len)*PH;
+      const ux = dx/len, uy = dy/len;
+      function simpPillT(cx, cy, toX, toY) {
+        const phw=90, phh=15, pfw=phw-phh;
+        const dux=(toX-cx)/Math.sqrt((toX-cx)**2+(toY-cy)**2)||1;
+        const duy=(toY-cy)/Math.sqrt((toX-cx)**2+(toY-cy)**2)||0;
+        const c=[]; if(Math.abs(duy)>1e-9){const t=phh/Math.abs(duy);if(Math.abs(dux*t)<=pfw)c.push(t);}
+        const disc=phh*phh-pfw*pfw*duy*duy;
+        if(disc>=0){const sq=Math.sqrt(disc);
+          for(const t of [dux*pfw+sq,dux*pfw-sq]) if(t>1e-6&&dux*t>=pfw-1e-6)c.push(t);
+          for(const t of [-dux*pfw+sq,-dux*pfw-sq]) if(t>1e-6&&dux*t<=-pfw+1e-6)c.push(t);}
+        const t=c.length?Math.min(...c):phw; return[cx+dux*t,cy+duy*t];
+      }
+      const [sx2,sy2] = simpPillT(sx,sy,tx,ty);
+      const [tx2,ty2] = simpPillT(tx,ty,sx,sy);
 
       // Route edges
       const srcIntl = sy > 380, tgtIntl = ty > 380;
       const inIsrael = sx < 280 && tx < 280 && !srcIntl && !tgtIntl;
       const inHamas  = sx > 720 && tx > 720 && !srcIntl && !tgtIntl;
       let d;
-      if (srcIntl || tgtIntl) {
-        // To/from international row — quadratic curve
-        const cpx = (sx+tx)/2, cpy = (sy+ty)/2 + 20;
-        d = `M ${sx2} ${sy2} Q ${cpx} ${cpy} ${tx2} ${ty2}`;
-      } else if (inIsrael || inHamas) {
-        // Intra-group (same column) — curve outward; keep control points inside viewBox
+      if (inIsrael || inHamas) {
+        // Intra-group (same column) — arc outward so stacked lines stay visible
         const dir  = inIsrael ? -1 : 1;
         const outX = inIsrael ? 20 : 980;
-        const sx2g = sx + dir * PH, sy2g = sy;
-        const tx2g = tx + dir * PH, ty2g = ty;
+        const [sx2g, sy2g] = simpPillT(sx, sy, sx + dir*1000, sy); // horizontal edge
+        const [tx2g, ty2g] = simpPillT(tx, ty, tx + dir*1000, ty);
         d = `M ${sx2g} ${sy2g} C ${outX} ${sy} ${outX} ${ty} ${tx2g} ${ty2g}`;
       } else {
-        // Inter-group and international — straight line
+        // Everything else — straight line
         d = `M ${sx2} ${sy2} L ${tx2} ${ty2}`;
       }
 
