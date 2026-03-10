@@ -482,6 +482,8 @@ function drawEdge(parent, src, tgt, edge) {
 
   let d;
 
+  const GAP = 12; // arrowhead length — stop stroke here so it doesn't overlap the triangle
+
   if (sameGroup) {
     // Intra-group: gentle arc out past the group edge so overlapping lines separate
     let outX;
@@ -492,17 +494,23 @@ function drawEdge(parent, src, tgt, edge) {
 
     const [sx2, sy2] = pillEdgePoint(sx, sy, outX, sy);
     const [tx2, ty2] = pillEdgePoint(tx, ty, outX, ty);
-    d = `M ${sx2} ${sy2} C ${outX} ${sy} ${outX} ${ty} ${tx2} ${ty2}`;
+    // End tangent direction: last bezier control point → endpoint
+    const etdx = tx2 - outX, etdy = ty2 - ty;
+    const etLen = Math.sqrt(etdx*etdx + etdy*etdy) || 1;
+    const tx2g = tx2 - etdx/etLen * GAP, ty2g = ty2 - etdy/etLen * GAP;
+    d = `M ${sx2} ${sy2} C ${outX} ${sy} ${outX} ${ty} ${tx2g} ${ty2g}`;
   } else if (tgtRegion === 'international' || srcRegion === 'international') {
     // Straight line to/from international row
     const [sx2, sy2] = pillEdgePoint(sx, sy, tx, ty);
     const [tx2, ty2] = pillEdgePoint(tx, ty, sx, sy);
-    d = `M ${sx2} ${sy2} L ${tx2} ${ty2}`;
+    const ldx = tx2-sx2, ldy = ty2-sy2, lLen = Math.sqrt(ldx*ldx+ldy*ldy)||1;
+    d = `M ${sx2} ${sy2} L ${tx2 - ldx/lLen*GAP} ${ty2 - ldy/lLen*GAP}`;
   } else {
     // Inter-group: straight line
     const [sx2, sy2] = pillEdgePoint(sx, sy, tx, ty);
     const [tx2, ty2] = pillEdgePoint(tx, ty, sx, sy);
-    d = `M ${sx2} ${sy2} L ${tx2} ${ty2}`;
+    const ldx = tx2-sx2, ldy = ty2-sy2, lLen = Math.sqrt(ldx*ldx+ldy*ldy)||1;
+    d = `M ${sx2} ${sy2} L ${tx2 - ldx/lLen*GAP} ${ty2 - ldy/lLen*GAP}`;
   }
 
   const path = svgEl('path', {
@@ -897,16 +905,21 @@ Promise.all([
       const inIsrael = sx < 280 && tx < 280 && !srcIntl && !tgtIntl;
       const inHamas  = sx > 720 && tx > 720 && !srcIntl && !tgtIntl;
       let d;
+      const SGAP = 12;
       if (inIsrael || inHamas) {
         // Intra-group (same column) — arc outward so stacked lines stay visible
         const dir  = inIsrael ? -1 : 1;
         const outX = inIsrael ? 20 : 980;
         const [sx2g, sy2g] = simpPillT(sx, sy, sx + dir*1000, sy); // horizontal edge
         const [tx2g, ty2g] = simpPillT(tx, ty, tx + dir*1000, ty);
-        d = `M ${sx2g} ${sy2g} C ${outX} ${sy} ${outX} ${ty} ${tx2g} ${ty2g}`;
+        // Shorten end along end tangent (last control point → endpoint)
+        const etdx = tx2g - outX, etdy = ty2g - ty;
+        const etLen = Math.sqrt(etdx*etdx + etdy*etdy) || 1;
+        d = `M ${sx2g} ${sy2g} C ${outX} ${sy} ${outX} ${ty} ${tx2g - etdx/etLen*SGAP} ${ty2g - etdy/etLen*SGAP}`;
       } else {
-        // Everything else — straight line
-        d = `M ${sx2} ${sy2} L ${tx2} ${ty2}`;
+        // Everything else — straight line, shortened by arrowhead length
+        const ldx = tx2-sx2, ldy = ty2-sy2, lLen = Math.sqrt(ldx*ldx+ldy*ldy)||1;
+        d = `M ${sx2} ${sy2} L ${tx2 - ldx/lLen*SGAP} ${ty2 - ldy/lLen*SGAP}`;
       }
 
       const path = svgEl('path', { d, fill:'none', stroke:color, 'stroke-width':sw,
