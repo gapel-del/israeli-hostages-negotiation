@@ -139,14 +139,26 @@ select {
 <!-- ═══════════════════════ QATAR DEEP DIVE ═══════════════════════ -->
 <div style="border-top:2px solid #21262d;padding:1.75rem 1.75rem 2.5rem;background:#0d1117">
 
-  <!-- Leaflet CSS/JS (reuse if already loaded, otherwise load here) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <style>
+    #qatarMap .maplibregl-popup-content {
+      background:#161b22; border:1px solid #30363d; border-radius:8px;
+      padding:.75rem 1rem; color:#cdd5df; font-size:.78rem; line-height:1.55;
+      box-shadow:0 8px 32px rgba(0,0,0,.6); max-width:280px;
+    }
+    #qatarMap .maplibregl-popup-content b { color:#e6edf3; }
+    #qatarMap .maplibregl-popup-tip { border-top-color:#30363d; }
+    #qatarMap .maplibregl-ctrl-attrib { background:rgba(13,17,23,.85)!important; }
+    #qatarMap .maplibregl-ctrl-attrib a { color:#58a6ff!important; }
+    #qatarMap .maplibregl-ctrl button { background:#161b22!important; }
+    #qatarMap .maplibregl-ctrl button span { filter:invert(1) opacity(.6); }
+  </style>
 
   <!-- Header -->
   <div style="margin-bottom:1.25rem">
     <span class="eyebrow" style="color:#e3b341">Deep Dive</span>
-    <h2 style="font-size:1.25rem;font-weight:700;color:#e6edf3;margin:.35rem 0 .45rem">Qatar: The Indispensable Broker</h2>
+    <h2 style="font-size:1.25rem;font-weight:700;color:#e6edf3;margin:.35rem 0 .45rem">Qatar: Indispensable Broker, U.S. Pawn, or Terrorist Sympathizer?</h2>
     <p style="font-size:.78rem;color:#8b949e;max-width:760px;line-height:1.6;margin:0">A nation the size of Connecticut leveraged geography, gas wealth, and deliberate risk-taking to become Washington's preferred channel to extremist groups and pariah states — while provoking fury from its neighbors. <span style="color:#6e7681">WSJ · Nov. 25, 2023</span></p>
   </div>
 
@@ -155,16 +167,17 @@ select {
 
     <!-- MAP -->
     <div>
-      <div id="qatarMap" style="height:500px;border-radius:8px;border:1px solid #21262d;overflow:hidden"></div>
+      <div id="qatarMap" style="height:520px;border-radius:8px;border:1px solid #21262d;overflow:hidden"></div>
 
       <!-- MAP LEGEND -->
-      <div style="display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;padding:.7rem .25rem 0;font-size:.68rem;color:#8b949e">
-        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:12px;height:12px;border-radius:50%;background:#388bfd;display:inline-block"></span>Al Udeid Air Base (US military)</span>
-        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:12px;height:12px;border-radius:50%;background:#f85149;display:inline-block"></span>Hamas Political Bureau HQ</span>
-        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:12px;height:12px;border-radius:2px;background:#bc8cff;display:inline-block"></span>Al Jazeera HQ</span>
-        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:28px;height:3px;background:#f0a500;display:inline-block;border-top:2px dashed #f0a500"></span>North Field / South Pars gas field</span>
-        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:28px;height:2px;background:repeating-linear-gradient(90deg,#bc8cff 0,#bc8cff 5px,transparent 5px,transparent 8px);display:inline-block"></span>Al Jazeera influence</span>
-        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:28px;height:2px;background:repeating-linear-gradient(90deg,#fb8500 0,#fb8500 4px,transparent 4px,transparent 7px);display:inline-block"></span>2017 blockade</span>
+      <div style="display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;padding:.65rem .25rem 0;font-size:.67rem;color:#8b949e;align-items:center">
+        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:10px;height:10px;border-radius:50%;background:#388bfd;display:inline-block;flex-shrink:0"></span>Al Udeid Air Base</span>
+        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:10px;height:10px;border-radius:50%;background:#f85149;display:inline-block;flex-shrink:0"></span>Hamas Political Bureau HQ</span>
+        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:10px;height:10px;border-radius:2px;background:#bc8cff;display:inline-block;flex-shrink:0"></span>Al Jazeera HQ</span>
+        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:22px;height:0;border-top:2px dashed #f0a500;display:inline-block;flex-shrink:0"></span>North Field / South Pars</span>
+        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:22px;height:0;border-top:2px dashed #bc8cff;display:inline-block;flex-shrink:0"></span>Al Jazeera influence</span>
+        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:22px;height:0;border-top:2px dashed #fb8500;display:inline-block;flex-shrink:0"></span>2017 blockade</span>
+        <span style="margin-left:auto;color:#6e7681;font-style:italic">Click markers for detail · scroll to zoom</span>
       </div>
     </div>
 
@@ -216,114 +229,148 @@ select {
 
 <script>
 (function() {
-  // Initialise Leaflet map centred on the Gulf region
-  const qMap = L.map('qatarMap', { zoomControl: true, scrollWheelZoom: false })
-    .setView([27.5, 45], 5);
-
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
-    subdomains: 'abcd', maxZoom: 19
-  }).addTo(qMap);
-
-  // ── Helper: circle marker ──
-  function dot(lat, lng, color, r) {
-    return L.circleMarker([lat, lng], {
-      radius: r || 7, color, weight: 2,
-      fillColor: color, fillOpacity: 0.9
-    });
-  }
-
-  // ── Al Udeid Air Base (US military) ──
-  dot(25.117, 51.315, '#388bfd', 9).addTo(qMap)
-    .bindPopup('<b>Al Udeid Air Base</b><br>Largest U.S. military base in the Middle East.<br>Hosts ~10,000 US personnel. Built after US troops relocated from Saudi Arabia.');
-
-  // ── Hamas Political Bureau HQ ──
-  dot(25.285, 51.535, '#f85149', 9).addTo(qMap)
-    .bindPopup('<b>Hamas Political Bureau HQ — Doha</b><br>Hamas leadership relocated here from Damascus after Syrian civil war erupted.<br>Qatar opened the channel at U.S. request; provides $100s M in aid to Gaza.');
-
-  // ── Al Jazeera HQ ──
-  L.circleMarker([25.255, 51.44], {
-    radius: 8, color: '#bc8cff', weight: 2,
-    fillColor: '#bc8cff', fillOpacity: 0.9
-  }).addTo(qMap)
-    .bindPopup('<b>Al Jazeera HQ — Doha</b><br>Pan-Arab broadcaster launched with gas-field revenues. Critical coverage of Arab Spring and Iraq War infuriated regional govts. Saudi Arabia, UAE, Bahrain & Egypt demanded it be shut down in 2017. Qatar refused.');
-
-  // ── North Field / South Pars gas field ──
-  // Draw an ellipse-like polygon in the Gulf between Qatar and Iran
-  // The field straddles roughly 26–27.5°N, 50–53°E
-  const gasFieldCoords = [
-    [27.5, 50.2], [27.8, 51.0], [28.0, 51.8], [27.8, 52.8],
-    [27.2, 53.0], [26.5, 52.5], [26.2, 51.5], [26.4, 50.5], [27.0, 50.0]
-  ];
-  L.polygon(gasFieldCoords, {
-    color: '#f0a500', weight: 2, dashArray: '6 4',
-    fillColor: '#f0a500', fillOpacity: 0.12
-  }).addTo(qMap)
-    .bindPopup('<b>North Field / South Pars</b><br>The world\'s largest natural gas field, shared between Qatar (North Field) and Iran (South Pars).<br>Discovered in 1971 — Qatar controls the larger share. Revenues fund Qatar\'s entire diplomatic strategy.');
-
-  // Gas field label via marker with divIcon
-  L.marker([27.2, 51.6], { icon: L.divIcon({
-    className: '',
-    html: '<div style="background:rgba(15,10,2,0.85);border:1px solid #f0a500;border-radius:4px;padding:3px 7px;font-size:10px;font-family:Inter,sans-serif;color:#f0a500;font-weight:700;white-space:nowrap">North Field / South Pars</div>',
-    iconAnchor: [75, 10]
-  })}).addTo(qMap);
-
-  // ── Al Jazeera influence arrows (polylines with arrowheads via SVG) ──
-  // Using Leaflet.Polyline.SnakeAnim is overkill; we'll use simple polylines with custom arrow ends
-  // Arrow to Egypt (Cairo)
-  const ajColor = '#bc8cff';
-  const ajOpts = { color: ajColor, weight: 1.5, dashArray: '6 4', opacity: 0.6 };
-  L.polyline([[25.25, 51.44], [30.06, 31.24]], ajOpts).addTo(qMap); // to Cairo
-  L.polyline([[25.25, 51.44], [33.89, 35.50]], ajOpts).addTo(qMap); // to Beirut
-  L.polyline([[25.25, 51.44], [24.69, 46.72]], ajOpts).addTo(qMap); // to Riyadh
-  L.polyline([[25.25, 51.44], [31.95, 35.93]], ajOpts).addTo(qMap); // to Amman/West Bank
-
-  // Arrowhead dots at destination ends
-  [
-    [30.06, 31.24], [33.89, 35.50], [24.69, 46.72], [31.95, 35.93]
-  ].forEach(([lat, lng]) => {
-    L.circleMarker([lat, lng], {
-      radius: 4, color: ajColor, weight: 1.5,
-      fillColor: ajColor, fillOpacity: 0.6
-    }).addTo(qMap);
+  const map = new maplibregl.Map({
+    container: 'qatarMap',
+    style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+    center: [51.18, 25.6],
+    zoom: 5.8,
+    maxZoom: 18,
+    scrollZoom: true
   });
 
-  // ── 2017 Blockade arrows ──
-  const blkColor = '#fb8500';
-  const blkOpts = { color: blkColor, weight: 2, dashArray: '5 4', opacity: 0.7 };
-  // Saudi Arabia → Qatar
-  L.polyline([[24.69, 46.72], [25.30, 51.20]], blkOpts).addTo(qMap);
-  // UAE → Qatar
-  L.polyline([[24.47, 54.37], [25.30, 51.50]], blkOpts).addTo(qMap);
-  // Egypt → Qatar
-  L.polyline([[30.06, 31.24], [25.45, 51.00]], blkOpts).addTo(qMap);
-  // Bahrain → Qatar
-  L.polyline([[26.22, 50.58], [25.70, 51.15]], blkOpts).addTo(qMap);
+  map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
-  // Blockade label
-  L.marker([23.8, 48.5], { icon: L.divIcon({
-    className: '',
-    html: '<div style="background:rgba(19,11,2,0.9);border:1px solid #fb8500;border-radius:4px;padding:3px 8px;font-size:10px;font-family:Inter,sans-serif;color:#fb8500;font-weight:700;white-space:nowrap">2017 Gulf Blockade</div>',
-    iconAnchor: [70, 10]
-  })}).addTo(qMap);
-
-  // ── City labels ──
-  function label(lat, lng, text, color) {
-    return L.marker([lat, lng], { icon: L.divIcon({
-      className: '',
-      html: `<div style="font-size:9px;font-family:Inter,sans-serif;color:${color || '#8b949e'};font-weight:600;white-space:nowrap;text-shadow:0 1px 3px #000">${text}</div>`,
-      iconAnchor: [0, 0]
-    })});
+  // ── Helper: coloured circle marker with popup ──
+  function addMarker(lngLat, color, popupHtml, size) {
+    const el = document.createElement('div');
+    const s = size || 14;
+    el.style.cssText = `width:${s}px;height:${s}px;border-radius:50%;background:${color};
+      border:2px solid rgba(255,255,255,.25);cursor:pointer;box-shadow:0 0 8px ${color}88`;
+    new maplibregl.Marker({ element: el })
+      .setLngLat(lngLat)
+      .setPopup(new maplibregl.Popup({ offset: 12, closeButton: false })
+        .setHTML(popupHtml))
+      .addTo(map);
   }
-  label(25.28, 51.57, 'Doha', '#e6edf3').addTo(qMap);
-  label(35.68, 51.50, 'Tehran', '#8b949e').addTo(qMap);
-  label(30.0,  31.30, 'Cairo', '#8b949e').addTo(qMap);
-  label(33.85, 35.55, 'Beirut', '#8b949e').addTo(qMap);
-  label(31.78, 35.22, 'Jerusalem / Gaza', '#e3b341').addTo(qMap);
-  label(24.65, 46.78, 'Riyadh', '#8b949e').addTo(qMap);
-  label(24.45, 54.42, 'Abu Dhabi', '#8b949e').addTo(qMap);
-  label(26.20, 50.60, 'Bahrain', '#8b949e').addTo(qMap);
-  label(33.32, 44.40, 'Baghdad', '#8b949e').addTo(qMap);
+
+  // ── Square marker (Al Jazeera) ──
+  function addSquareMarker(lngLat, color, popupHtml) {
+    const el = document.createElement('div');
+    el.style.cssText = `width:13px;height:13px;border-radius:3px;background:${color};
+      border:2px solid rgba(255,255,255,.25);cursor:pointer;box-shadow:0 0 8px ${color}88`;
+    new maplibregl.Marker({ element: el })
+      .setLngLat(lngLat)
+      .setPopup(new maplibregl.Popup({ offset: 10, closeButton: false })
+        .setHTML(popupHtml))
+      .addTo(map);
+  }
+
+  map.on('load', () => {
+
+    // ── GAS FIELD: North Field / South Pars polygon ──
+    map.addSource('gasField', { type: 'geojson', data: {
+      type: 'Feature',
+      geometry: { type: 'Polygon', coordinates: [[[
+        [51.5, 27.9], [52.2, 27.6], [52.6, 27.0], [52.4, 26.3],
+        [51.7, 26.0], [50.9, 26.1], [50.4, 26.6], [50.5, 27.3],
+        [51.0, 27.7], [51.5, 27.9]
+      ]]] }
+    }});
+    map.addLayer({ id: 'gasField-fill', type: 'fill', source: 'gasField',
+      paint: { 'fill-color': '#f0a500', 'fill-opacity': 0.1 } });
+    map.addLayer({ id: 'gasField-line', type: 'line', source: 'gasField',
+      paint: { 'line-color': '#f0a500', 'line-width': 1.8, 'line-dasharray': [4, 3] } });
+
+    // Dividing line between Qatar (S) and Iran (N) portions (~27°N)
+    map.addSource('gasDiv', { type: 'geojson', data: {
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates: [[50.5, 27.0], [52.5, 27.0]] }
+    }});
+    map.addLayer({ id: 'gasDiv-line', type: 'line', source: 'gasDiv',
+      paint: { 'line-color': '#f0a500', 'line-width': 1, 'line-dasharray': [3, 3], 'line-opacity': 0.6 } });
+
+    // Gas field clickable marker/label
+    const gasEl = document.createElement('div');
+    gasEl.style.cssText = 'background:rgba(15,10,2,.9);border:1px solid #f0a500;border-radius:4px;padding:3px 8px;font-size:10px;font-family:Inter,sans-serif;color:#f0a500;font-weight:700;cursor:pointer;white-space:nowrap';
+    gasEl.textContent = 'North Field / South Pars';
+    new maplibregl.Marker({ element: gasEl })
+      .setLngLat([51.5, 27.0])
+      .setPopup(new maplibregl.Popup({ offset: 12, closeButton: false })
+        .setHTML("<b>North Field (Qatar) / South Pars (Iran)</b><br>The world's largest natural gas field, shared between Qatar and Iran.<br>Discovered 1971. Qatar's North Field is the larger share. Revenues fund Qatar's entire diplomatic strategy — military bases, Hamas support, Taliban talks, and Al Jazeera alike."))
+      .addTo(map);
+
+    // ── AL JAZEERA INFLUENCE LINES ──
+    const ajTargets = [
+      [31.24, 30.06],  // Cairo
+      [35.50, 33.89],  // Beirut
+      [46.72, 24.69],  // Riyadh
+      [35.22, 31.78],  // Jerusalem/West Bank
+      [44.40, 33.32],  // Baghdad
+    ];
+    map.addSource('ajLines', { type: 'geojson', data: {
+      type: 'FeatureCollection',
+      features: ajTargets.map(([lng, lat]) => ({
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: [[51.44, 25.25], [lng, lat]] }
+      }))
+    }});
+    map.addLayer({ id: 'aj-lines', type: 'line', source: 'ajLines',
+      paint: { 'line-color': '#bc8cff', 'line-width': 1.5, 'line-dasharray': [5, 4], 'line-opacity': 0.55 } });
+
+    // ── 2017 BLOCKADE LINES ──
+    const blockadeSources = [
+      [46.72, 24.69],  // Riyadh (Saudi)
+      [54.37, 24.47],  // Abu Dhabi (UAE)
+      [31.24, 30.06],  // Cairo (Egypt)
+      [50.58, 26.22],  // Manama (Bahrain)
+    ];
+    map.addSource('blockadeLines', { type: 'geojson', data: {
+      type: 'FeatureCollection',
+      features: blockadeSources.map(([lng, lat]) => ({
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: [[lng, lat], [51.20, 25.40]] }
+      }))
+    }});
+    map.addLayer({ id: 'blockade-lines', type: 'line', source: 'blockadeLines',
+      paint: { 'line-color': '#fb8500', 'line-width': 1.8, 'line-dasharray': [4, 3], 'line-opacity': 0.65 } });
+
+    // Blockade label
+    const blkEl = document.createElement('div');
+    blkEl.style.cssText = 'background:rgba(19,11,2,.9);border:1px solid #fb8500;border-radius:4px;padding:3px 8px;font-size:10px;font-family:Inter,sans-serif;color:#fb8500;font-weight:700;pointer-events:none;white-space:nowrap';
+    blkEl.textContent = '2017 Gulf Blockade';
+    new maplibregl.Marker({ element: blkEl }).setLngLat([49.5, 23.5]).addTo(map);
+
+    // ── MARKERS ──
+    addMarker([51.315, 25.117], '#388bfd',
+      '<b>Al Udeid Air Base</b><br>Largest U.S. military base in the Middle East. ~10,000 US personnel. Built after U.S. troops relocated from Saudi Arabia. Qatar hosts this base while simultaneously hosting Hamas — the defining contradiction of its strategy.', 16);
+
+    addMarker([51.535, 25.285], '#f85149',
+      '<b>Hamas Political Bureau HQ — Doha</b><br>Hamas leadership relocated here from Damascus after the Syrian civil war. Qatar opened the channel at U.S. request. Qatar has provided hundreds of millions of dollars in aid to Gaza, financing electricity and supporting 100,000 poorest families.', 16);
+
+    addSquareMarker([51.44, 25.255],
+      '#bc8cff',
+      '<b>Al Jazeera HQ — Doha</b><br>Pan-Arab broadcaster launched with gas-field revenues. Its critical coverage of the Arab Spring and Iraq War infuriated regional governments. Saudi Arabia, UAE, Bahrain, and Egypt demanded its closure in 2017. Qatar refused.');
+
+    // ── CITY LABELS ──
+    const cities = [
+      { lngLat: [51.53, 25.31], label: 'Doha', color: '#e6edf3', bold: true },
+      { lngLat: [51.42, 35.68], label: 'Tehran', color: '#8b949e', bold: false },
+      { lngLat: [31.24, 30.08], label: 'Cairo', color: '#8b949e', bold: false },
+      { lngLat: [35.50, 33.92], label: 'Beirut', color: '#8b949e', bold: false },
+      { lngLat: [35.22, 31.80], label: 'Jerusalem / Gaza', color: '#e3b341', bold: false },
+      { lngLat: [46.72, 24.72], label: 'Riyadh', color: '#8b949e', bold: false },
+      { lngLat: [54.37, 24.50], label: 'Abu Dhabi', color: '#8b949e', bold: false },
+      { lngLat: [50.58, 26.25], label: 'Bahrain', color: '#8b949e', bold: false },
+      { lngLat: [44.40, 33.35], label: 'Baghdad', color: '#8b949e', bold: false },
+    ];
+    cities.forEach(({ lngLat, label, color, bold }) => {
+      const el = document.createElement('div');
+      el.style.cssText = `font-size:10px;font-family:Inter,sans-serif;color:${color};${bold ? 'font-weight:700;' : ''}pointer-events:none;text-shadow:0 1px 4px #000,0 1px 4px #000`;
+      el.textContent = label;
+      new maplibregl.Marker({ element: el, anchor: 'bottom-left' }).setLngLat(lngLat).addTo(map);
+    });
+
+  }); // end map.on('load')
 })();
 </script>
 
