@@ -281,64 +281,108 @@ select {
     map.addLayer({ id: 'gasField-line', type: 'line', source: 'gasField',
       paint: { 'line-color': '#f0a500', 'line-width': 1.8, 'line-dasharray': [4, 3] } });
 
-    // Dividing line between Qatar (S) and Iran (N) portions (~27°N)
+    // ── GAS FIELD: dividing line between Qatar (S) and Iran (N) portions ──
     map.addSource('gasDiv', { type: 'geojson', data: {
       type: 'Feature',
-      geometry: { type: 'LineString', coordinates: [[50.5, 27.0], [52.5, 27.0]] }
+      geometry: { type: 'LineString', coordinates: [[50.4, 27.0], [52.6, 27.0]] }
     }});
     map.addLayer({ id: 'gasDiv-line', type: 'line', source: 'gasDiv',
-      paint: { 'line-color': '#f0a500', 'line-width': 1, 'line-dasharray': [3, 3], 'line-opacity': 0.6 } });
+      paint: { 'line-color': '#f0a500', 'line-width': 1.5, 'line-dasharray': [4, 3], 'line-opacity': 0.75 } });
 
-    // Gas field clickable marker/label
-    const gasEl = document.createElement('div');
-    gasEl.style.cssText = 'background:rgba(15,10,2,.9);border:1px solid #f0a500;border-radius:4px;padding:3px 8px;font-size:10px;font-family:Inter,sans-serif;color:#f0a500;font-weight:700;cursor:pointer;white-space:nowrap';
-    gasEl.textContent = 'North Field / South Pars';
-    new maplibregl.Marker({ element: gasEl })
-      .setLngLat([51.5, 27.0])
-      .setPopup(new maplibregl.Popup({ offset: 12, closeButton: false })
-        .setHTML("<b>North Field (Qatar) / South Pars (Iran)</b><br>The world's largest natural gas field, shared between Qatar and Iran.<br>Discovered 1971. Qatar's North Field is the larger share. Revenues fund Qatar's entire diplomatic strategy — military bases, Hamas support, Taliban talks, and Al Jazeera alike."))
-      .addTo(map);
+    // Helper: plain floating text label (no background)
+    function floatLabel(lngLat, html, anchor) {
+      const el = document.createElement('div');
+      el.style.cssText = 'pointer-events:none;font-family:Inter,sans-serif;text-shadow:0 1px 4px #000,0 1px 4px #000';
+      el.innerHTML = html;
+      new maplibregl.Marker({ element: el, anchor: anchor || 'center' }).setLngLat(lngLat).addTo(map);
+    }
+
+    // Helper: pill label with border
+    function pillLabel(lngLat, html, borderColor, bg, anchor, popup) {
+      const el = document.createElement('div');
+      el.style.cssText = `background:${bg};border:1px solid ${borderColor};border-radius:4px;padding:3px 8px;font-family:Inter,sans-serif;cursor:${popup ? 'pointer' : 'default'};white-space:nowrap`;
+      el.innerHTML = html;
+      const m = new maplibregl.Marker({ element: el, anchor: anchor || 'center' }).setLngLat(lngLat);
+      if (popup) m.setPopup(new maplibregl.Popup({ offset: 10, closeButton: false }).setHTML(popup));
+      m.addTo(map);
+    }
+
+    // Gas field labels — north half (Iran / South Pars) and south half (Qatar / North Field)
+    pillLabel([51.5, 27.55],
+      '<span style="font-size:9px;font-weight:700;color:#f0a500">SOUTH PARS</span><br><span style="font-size:8px;color:#a07000">Iran\'s share</span>',
+      '#f0a500', 'rgba(15,10,2,.88)', 'center',
+      "<b>South Pars (Iran)</b><br>Iran's portion of the shared field. Revenue is central to Iranian state finances. Qatar and Iran share the field but are geopolitical rivals — Qatar hosts U.S. troops Iran considers occupiers.");
+
+    pillLabel([51.5, 26.5],
+      '<span style="font-size:9px;font-weight:700;color:#f0a500">NORTH FIELD</span><br><span style="font-size:8px;color:#a07000">Qatar\'s share</span>',
+      '#f0a500', 'rgba(15,10,2,.88)', 'center',
+      "<b>North Field (Qatar)</b><br>The world's largest single natural gas reservoir. Qatar controls the larger share. Revenue funds Al Udeid base, Hamas aid, Al Jazeera, and Qatar's entire mediation strategy.");
+
+    // Outer gas field label
+    pillLabel([51.5, 27.05],
+      '<span style="font-size:8px;font-weight:600;color:#c08800">━━ Qatar / Iran border ━━</span>',
+      'transparent', 'transparent', 'center');
 
     // ── AL JAZEERA INFLUENCE LINES ──
+    const ajOrigin = [51.44, 25.25];
     const ajTargets = [
-      [31.24, 30.06],  // Cairo
-      [35.50, 33.89],  // Beirut
-      [46.72, 24.69],  // Riyadh
-      [35.22, 31.78],  // Jerusalem/West Bank
-      [44.40, 33.32],  // Baghdad
+      { coord: [31.24, 30.06], city: 'Cairo' },
+      { coord: [35.50, 33.89], city: 'Beirut' },
+      { coord: [46.72, 24.69], city: 'Riyadh' },
+      { coord: [35.22, 31.78], city: 'W. Bank / Gaza' },
+      { coord: [44.40, 33.32], city: 'Baghdad' },
     ];
     map.addSource('ajLines', { type: 'geojson', data: {
       type: 'FeatureCollection',
-      features: ajTargets.map(([lng, lat]) => ({
+      features: ajTargets.map(t => ({
         type: 'Feature',
-        geometry: { type: 'LineString', coordinates: [[51.44, 25.25], [lng, lat]] }
+        geometry: { type: 'LineString', coordinates: [ajOrigin, t.coord] }
       }))
     }});
     map.addLayer({ id: 'aj-lines', type: 'line', source: 'ajLines',
       paint: { 'line-color': '#bc8cff', 'line-width': 1.5, 'line-dasharray': [5, 4], 'line-opacity': 0.55 } });
 
+    // Al Jazeera source label near Qatar
+    pillLabel([50.6, 25.6],
+      '<span style="font-size:9px;font-weight:700;color:#bc8cff">Al Jazeera influence</span>',
+      '#bc8cff', 'rgba(16,10,30,.88)', 'center');
+
     // ── 2017 BLOCKADE LINES ──
-    const blockadeSources = [
-      [46.72, 24.69],  // Riyadh (Saudi)
-      [54.37, 24.47],  // Abu Dhabi (UAE)
-      [31.24, 30.06],  // Cairo (Egypt)
-      [50.58, 26.22],  // Manama (Bahrain)
+    const blockadeCountries = [
+      { coord: [46.72, 24.69], label: 'Saudi Arabia' },
+      { coord: [54.37, 24.47], label: 'UAE' },
+      { coord: [31.24, 30.06], label: 'Egypt' },
+      { coord: [50.58, 26.22], label: 'Bahrain' },
     ];
     map.addSource('blockadeLines', { type: 'geojson', data: {
       type: 'FeatureCollection',
-      features: blockadeSources.map(([lng, lat]) => ({
+      features: blockadeCountries.map(c => ({
         type: 'Feature',
-        geometry: { type: 'LineString', coordinates: [[lng, lat], [51.20, 25.40]] }
+        geometry: { type: 'LineString', coordinates: [[c.coord[0], c.coord[1]], [51.20, 25.40]] }
       }))
     }});
     map.addLayer({ id: 'blockade-lines', type: 'line', source: 'blockadeLines',
       paint: { 'line-color': '#fb8500', 'line-width': 1.8, 'line-dasharray': [4, 3], 'line-opacity': 0.65 } });
 
-    // Blockade label
-    const blkEl = document.createElement('div');
-    blkEl.style.cssText = 'background:rgba(19,11,2,.9);border:1px solid #fb8500;border-radius:4px;padding:3px 8px;font-size:10px;font-family:Inter,sans-serif;color:#fb8500;font-weight:700;pointer-events:none;white-space:nowrap';
-    blkEl.textContent = '2017 Gulf Blockade';
-    new maplibregl.Marker({ element: blkEl }).setLngLat([49.5, 23.5]).addTo(map);
+    // Country labels at each blockade source
+    const blockadeLabelOffsets = {
+      'Saudi Arabia': [45.5, 23.5],
+      'UAE':          [55.2, 23.8],
+      'Egypt':        [29.8, 29.0],
+      'Bahrain':      [49.5, 26.8],
+    };
+    blockadeCountries.forEach(c => {
+      const pos = blockadeLabelOffsets[c.label] || c.coord;
+      pillLabel(pos,
+        `<span style="font-size:9px;font-weight:700;color:#fb8500">${c.label}</span><br><span style="font-size:8px;color:#a04000">2017 blockade</span>`,
+        '#fb8500', 'rgba(19,11,2,.88)', 'center');
+    });
+
+    // Central blockade header label
+    pillLabel([49.0, 22.8],
+      '<span style="font-size:9.5px;font-weight:700;color:#fb8500">2017 Gulf Blockade</span><br><span style="font-size:8px;color:#a04000">Diplomatic siege of Qatar</span>',
+      '#fb8500', 'rgba(19,11,2,.92)', 'center',
+      "<b>2017 Gulf Blockade</b><br>Saudi Arabia, UAE, Bahrain, and Egypt cut diplomatic ties and imposed a land/air/sea blockade with Trump administration backing. They demanded Qatar close Al Jazeera, expel Hamas, and downgrade Iran ties. Qatar refused all demands. The blockade ended in 2021 with zero concessions.");
 
     // ── MARKERS ──
     addMarker([51.315, 25.117], '#388bfd',
