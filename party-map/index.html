@@ -323,20 +323,37 @@ select {
       '<span style="font-size:8px;font-weight:600;color:#c08800">━━ Qatar / Iran border ━━</span>',
       'transparent', 'transparent', 'center');
 
+    // ── CURVE HELPER ──
+    // Quadratic bezier arc between two [lng,lat] points
+    function arc(a, b, curv, n) {
+      n = n || 64;
+      const mx = (a[0]+b[0])/2, my = (a[1]+b[1])/2;
+      const dx = b[0]-a[0], dy = b[1]-a[1];
+      const len = Math.sqrt(dx*dx+dy*dy) || 1;
+      const cx = mx + curv * (-dy/len);
+      const cy = my + curv * ( dx/len);
+      const pts = [];
+      for (let i=0; i<=n; i++) {
+        const t = i/n, u = 1-t;
+        pts.push([u*u*a[0]+2*u*t*cx+t*t*b[0], u*u*a[1]+2*u*t*cy+t*t*b[1]]);
+      }
+      return pts;
+    }
+
     // ── AL JAZEERA INFLUENCE LINES ──
     const ajOrigin = [51.44, 25.25];
     const ajTargets = [
-      { coord: [31.24, 30.06], city: 'Cairo' },
-      { coord: [35.50, 33.89], city: 'Beirut' },
-      { coord: [46.72, 24.69], city: 'Riyadh' },
-      { coord: [35.22, 31.78], city: 'W. Bank / Gaza' },
-      { coord: [44.40, 33.32], city: 'Baghdad' },
+      { coord: [31.24, 30.06], curv:  3 },  // Cairo
+      { coord: [35.50, 33.89], curv:  2 },  // Beirut
+      { coord: [46.72, 24.69], curv: -2 },  // Riyadh (curve south)
+      { coord: [35.22, 31.78], curv:  2 },  // W. Bank / Gaza
+      { coord: [44.40, 33.32], curv:  2 },  // Baghdad
     ];
     map.addSource('ajLines', { type: 'geojson', data: {
       type: 'FeatureCollection',
       features: ajTargets.map(t => ({
         type: 'Feature',
-        geometry: { type: 'LineString', coordinates: [ajOrigin, t.coord] }
+        geometry: { type: 'LineString', coordinates: arc(ajOrigin, t.coord, t.curv) }
       }))
     }});
     map.addLayer({ id: 'aj-lines', type: 'line', source: 'ajLines',
@@ -354,11 +371,13 @@ select {
       { coord: [31.24, 30.06], label: 'Egypt' },
       { coord: [50.58, 26.22], label: 'Bahrain' },
     ];
+    const blockadeTarget = [51.20, 25.40];
+    const blockadeCurves = { 'Saudi Arabia': -2, 'UAE': 2, 'Egypt': -3, 'Bahrain': -1.5 };
     map.addSource('blockadeLines', { type: 'geojson', data: {
       type: 'FeatureCollection',
       features: blockadeCountries.map(c => ({
         type: 'Feature',
-        geometry: { type: 'LineString', coordinates: [[c.coord[0], c.coord[1]], [51.20, 25.40]] }
+        geometry: { type: 'LineString', coordinates: arc([c.coord[0], c.coord[1]], blockadeTarget, blockadeCurves[c.label] || 2) }
       }))
     }});
     map.addLayer({ id: 'blockade-lines', type: 'line', source: 'blockadeLines',
@@ -395,16 +414,12 @@ select {
       '#bc8cff',
       '<b>Al Jazeera HQ — Doha</b><br>Pan-Arab broadcaster launched with gas-field revenues. Its critical coverage of the Arab Spring and Iraq War infuriated regional governments. Saudi Arabia, UAE, Bahrain, and Egypt demanded its closure in 2017. Qatar refused.');
 
-    // ── CITY LABELS ──
+    // ── CITY LABELS (omit cities that already have blockade labels) ──
     const cities = [
       { lngLat: [51.53, 25.31], label: 'Doha', color: '#e6edf3', bold: true },
       { lngLat: [51.42, 35.68], label: 'Tehran', color: '#8b949e', bold: false },
-      { lngLat: [31.24, 30.08], label: 'Cairo', color: '#8b949e', bold: false },
       { lngLat: [35.50, 33.92], label: 'Beirut', color: '#8b949e', bold: false },
       { lngLat: [35.22, 31.80], label: 'Jerusalem / Gaza', color: '#e3b341', bold: false },
-      { lngLat: [46.72, 24.72], label: 'Riyadh', color: '#8b949e', bold: false },
-      { lngLat: [54.37, 24.50], label: 'Abu Dhabi', color: '#8b949e', bold: false },
-      { lngLat: [50.58, 26.25], label: 'Bahrain', color: '#8b949e', bold: false },
       { lngLat: [44.40, 33.35], label: 'Baghdad', color: '#8b949e', bold: false },
     ];
     cities.forEach(({ lngLat, label, color, bold }) => {
