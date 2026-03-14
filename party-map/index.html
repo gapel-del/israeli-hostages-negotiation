@@ -81,6 +81,11 @@ select {
   display: flex; align-items: baseline; gap: 1.5rem;
   padding: 0 0.5rem 0.75rem;
 }
+.detailed-header {
+  display: flex; align-items: baseline; gap: 1.5rem;
+  padding: 1rem 1.75rem 0.75rem;
+  border-top: 1px solid #21262d;
+}
 .simplified-desc {
   font-size: 0.75rem; color: #6e7681; line-height: 1.5;
 }
@@ -119,6 +124,10 @@ select {
     <div class="simp-viz-wrap">
       <svg id="simpMap" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
+  </div>
+  <div class="detailed-header">
+    <span class="eyebrow">Detailed View</span>
+    <p class="simplified-desc">All individual actors and relationships. Hover edges for context on each connection.</p>
   </div>
   <div class="viz-wrap">
     <svg id="map" viewBox="0 0 1100 680" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
