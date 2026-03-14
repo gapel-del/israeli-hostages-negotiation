@@ -1271,5 +1271,351 @@ Promise.all([
     'Serve via HTTP server (e.g. python -m http.server 8080). Error: ' + err.message;
 });
 </script>
+
+<!-- ════════════════════════════════════════════════════════════════
+     WAR BY THE NUMBERS
+     ════════════════════════════════════════════════════════════════ -->
+<section id="war-numbers" style="max-width:1100px;margin:60px auto 40px;padding:0 20px;font-family:Inter,sans-serif">
+
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:32px">
+    <h2 style="color:#e6edf3;font-size:1.9rem;font-weight:700;margin:0 0 8px">War by the Numbers</h2>
+    <p style="color:#8b949e;font-size:.95rem;max-width:680px;margin:0 auto">
+      Drag the slider to trace how human cost, physical destruction, and political opinion shifted
+      across each major negotiation episode — from the first pause agreement to the latest ceasefire.
+    </p>
+  </div>
+
+  <!-- Episode slider -->
+  <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px 28px 20px;margin-bottom:28px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;position:relative">
+      <!-- Progress bar track -->
+      <div id="wn-track" style="position:absolute;top:18px;left:0;right:0;height:3px;background:#21262d;border-radius:2px;z-index:0"></div>
+      <div id="wn-fill" style="position:absolute;top:18px;left:0;height:3px;background:linear-gradient(90deg,#388bfd,#56d364);border-radius:2px;z-index:1;transition:width .3s"></div>
+      <!-- Episode dots -->
+      <div id="wn-episodes" style="display:flex;justify-content:space-between;width:100%;position:relative;z-index:2"></div>
+    </div>
+    <!-- Slider input (hidden behind dots, for accessibility) -->
+    <input type="range" id="wn-slider" min="0" max="5" value="0" step="1"
+      style="width:100%;margin:0;opacity:0;position:absolute;height:40px;cursor:pointer;z-index:10">
+    <!-- Current episode description -->
+    <div id="wn-ep-title" style="color:#e6edf3;font-size:1.05rem;font-weight:700;margin-top:4px"></div>
+    <div id="wn-ep-desc"  style="color:#8b949e;font-size:.85rem;margin-top:4px;line-height:1.5"></div>
+  </div>
+
+  <!-- Metric cards grid -->
+  <div id="wn-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:28px"></div>
+
+  <!-- Key events list -->
+  <div style="background:#161b22;border:1px solid #30363d;border-radius:10px;padding:18px 22px;margin-bottom:24px">
+    <div style="color:#8b949e;font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Key Events at This Stage</div>
+    <ul id="wn-events" style="margin:0;padding-left:18px;color:#c9d1d9;font-size:.88rem;line-height:1.8"></ul>
+  </div>
+
+  <!-- Sources -->
+  <details style="color:#8b949e;font-size:.78rem;line-height:1.7">
+    <summary style="cursor:pointer;color:#58a6ff;font-weight:600;font-size:.82rem;margin-bottom:6px">Sources &amp; Methodology</summary>
+    <div style="padding:10px 0 0 4px">
+      <p><strong style="color:#c9d1d9">Gaza deaths</strong> — Gaza Ministry of Health daily bulletins, cross-referenced with UN OCHA situation reports. The MoH tracks documented deaths at health facilities; actual toll is likely higher due to bodies under rubble. <a href="https://www.ochaopt.org/data/casualties" target="_blank" style="color:#58a6ff">OCHA oPt Casualties</a></p>
+      <p><strong style="color:#c9d1d9">IDF soldier deaths</strong> — Israeli Defense Forces official announcements. <a href="https://www.idf.il/en/" target="_blank" style="color:#58a6ff">IDF official</a></p>
+      <p><strong style="color:#c9d1d9">Israeli civilian deaths (Oct 7)</strong> — Israel Police / National Insurance Institute. Ground offensive civilian deaths are small by comparison and not separately broken out here.</p>
+      <p><strong style="color:#c9d1d9">Hamas combatant deaths</strong> — IDF estimates; independent verification is impossible. Treat as rough order-of-magnitude. IDF periodically revises these figures.</p>
+      <p><strong style="color:#c9d1d9">Building destruction</strong> — UNOSAT satellite damage assessments, published Jan 2024, Sep 2024, and Mar 2025. Numbers represent structures assessed as destroyed or severely/moderately damaged in Gaza Strip. <a href="https://unosat.org/products/3749" target="_blank" style="color:#58a6ff">UNOSAT 2024</a> · <a href="https://unosat.org/products/3905" target="_blank" style="color:#58a6ff">UNOSAT Mar 2025</a></p>
+      <p><strong style="color:#c9d1d9">Population displaced</strong> — UNRWA / OCHA displacement tracking.</p>
+      <p><strong style="color:#c9d1d9">Hamas approval</strong> — Palestinian Center for Policy and Survey Research (PCPSR) polls conducted in the West Bank and Gaza. Question: "Hamas's decision to launch the Oct 7 attack was correct." Figures reflect Gaza respondents where available. <a href="https://www.pcpsr.org" target="_blank" style="color:#58a6ff">PCPSR</a></p>
+      <p><strong style="color:#c9d1d9">Netanyahu approval</strong> — Israel Democracy Index / Israeli Voice Index monthly tracking by Israel Democracy Institute. <a href="https://en.idi.org.il" target="_blank" style="color:#58a6ff">IDI</a></p>
+      <p><strong style="color:#c9d1d9">Global opinion of Israel</strong> — Pew Research Center Spring 2024 Global Attitudes Survey; YouGov-Cambridge Globalism Project. <a href="https://www.pewresearch.org/global/2024/05/08/most-adults-in-countries-surveyed-say-too-many-civilians-have-been-killed-in-gaza/" target="_blank" style="color:#58a6ff">Pew 2024</a></p>
+      <p><strong style="color:#c9d1d9">Aid trucks/day</strong> — OCHA oPt access and movement reports (7-day rolling averages).</p>
+      <p><strong style="color:#c9d1d9">Gaza GDP</strong> — UNCTAD rapid assessments; World Bank Gaza economic monitoring. <a href="https://unctad.org/publication/economic-costs-war-and-human-development-crisis-gaza-2024" target="_blank" style="color:#58a6ff">UNCTAD 2024</a></p>
+      <p style="color:#6e7681;font-style:italic">Some data points between UNOSAT assessment dates are interpolated estimates; episodes without a direct survey are marked ~. All figures are approximations reflecting conditions near the episode date.</p>
+    </div>
+  </details>
+
+</section>
+
+<script>
+(function() {
+
+const EPISODES = [
+  {
+    date: 'Nov 24, 2023',
+    label: 'Episode 1',
+    title: 'First Pause Agreement',
+    desc: 'Qatar, Egypt, and the U.S. broker a 4-day humanitarian pause. Israel and Hamas exchange 50 hostages for 150 Palestinian prisoners. The pause is extended twice, then collapses on Dec 1 when Hamas fires rockets.',
+    events: [
+      'Nov 24 — First 4-day pause begins; 13 Israeli hostages and 39 foreign nationals released in exchange for 39 Palestinian prisoners',
+      'Nov 27 — Pause extended 2 more days; 14 more hostages released',
+      'Nov 30 — Hamas fires rockets; Israel declares pause over and resumes bombing',
+      'Dec 1 — Full-scale ground and air offensive resumes across Gaza',
+      'Pre-war baseline: Gaza population ~2.1 million; ~220,000 buildings',
+    ],
+    metrics: {
+      gazaDeaths: { val: 14800, fmt: '~14,800', note: 'MoH cumulative', color: '#f85149' },
+      idfDeaths:  { val: 100,   fmt: '~100',    note: 'IDF official',   color: '#ffa657' },
+      civDeaths:  { val: 1139,  fmt: '1,139',   note: 'Oct 7 civilians (Israel Police)', color: '#f85149' },
+      hamasKilled:{ val: 2000,  fmt: '~2,000',  note: 'IDF estimate (rough)', color: '#ffa657' },
+      buildingsPct:{ val: 19,   fmt: '~19%',    note: 'est. before Jan 2024 UNOSAT', color: '#d29922' },
+      buildingsN: { val: 42000, fmt: '~42,000', note: 'structures damaged/destroyed est.', color: '#d29922' },
+      displaced:  { val: 1700000, fmt: '1.7M',  note: 'UNRWA/OCHA', color: '#ffa657' },
+      hamasApproval:{ val: 57, fmt: '57%',  note: 'PCPSR Dec 2023 (Oct 7 was correct)', color: '#bc8cff' },
+      bibiApproval: { val: 25, fmt: '~25%', note: 'IDI Nov 2023', color: '#79c0ff' },
+      aidTrucks:  { val: 65,  fmt: '~65/day', note: 'OCHA rolling avg.', color: '#56d364' },
+      gdpChange:  { val: null, fmt: '—', note: 'data pending Q4 2023', color: '#6e7681' },
+      globalUnfav:{ val: null, fmt: '—', note: 'Pew survey not yet fielded', color: '#6e7681' },
+    }
+  },
+  {
+    date: 'Mar 25, 2024',
+    label: 'Episode 2',
+    title: 'UN Security Council Ceasefire Resolution',
+    desc: 'The U.S. abstains from (rather than vetoing) UNSC Resolution 2728, calling for an immediate ceasefire during Ramadan. Israel continues the offensive. A full deal framework remains stalled as Hamas demands a permanent end to the war.',
+    events: [
+      'Mar 25 — UNSC Res. 2728 passes 14-0 (U.S. abstains); demands immediate ceasefire during Ramadan, release of all hostages',
+      'Mar 18 — IDF seizes Nasser Hospital, Khan Younis; WHO declares it non-functional',
+      'Feb–Mar — Flour Massacre: 112 Palestinians killed near World Kitchen convoy site',
+      'Mar 31 — World Central Kitchen convoy airstrike kills 7 aid workers; Israel admits error',
+      'Mar — Rafah ground invasion preparation intensifies; Egypt warns of "catastrophic" consequences',
+    ],
+    metrics: {
+      gazaDeaths: { val: 32000,  fmt: '32,000+', note: 'MoH cumulative', color: '#f85149' },
+      idfDeaths:  { val: 575,    fmt: '~575',    note: 'IDF official',   color: '#ffa657' },
+      civDeaths:  { val: 1200,   fmt: '~1,200',  note: 'incl. some killed post-Oct 7', color: '#f85149' },
+      hamasKilled:{ val: 12000,  fmt: '~12,000', note: 'IDF estimate', color: '#ffa657' },
+      buildingsPct:{ val: 35,    fmt: '35%',     note: 'UNOSAT Jan 2024 (88,868 structures)', color: '#d29922' },
+      buildingsN: { val: 88868,  fmt: '88,868',  note: 'UNOSAT Jan 2024 — verified', color: '#d29922' },
+      displaced:  { val: 1800000, fmt: '1.8M',   note: 'UNRWA/OCHA', color: '#ffa657' },
+      hamasApproval:{ val: 71,  fmt: '71%',  note: 'PCPSR Mar 2024 — peaked here', color: '#bc8cff' },
+      bibiApproval: { val: 32,  fmt: '~32%', note: 'IDI Mar 2024', color: '#79c0ff' },
+      aidTrucks:  { val: 35, fmt: '~35/day', note: 'OCHA — severe access restrictions', color: '#56d364' },
+      gdpChange:  { val: -79, fmt: '-79%',   note: 'UNCTAD Q3 2023 annualized; World Bank est. 2023 full year', color: '#f85149' },
+      globalUnfav:{ val: null, fmt: '—', note: 'Pew Apr–May survey in field', color: '#6e7681' },
+    }
+  },
+  {
+    date: 'Jul 8, 2024',
+    label: 'Episode 3',
+    title: "Biden's Bridging Proposal",
+    desc: 'President Biden publicly announces a 3-phase ceasefire framework. Phase 1: 6-week pause + partial hostage release. Phase 2: permanent end to war + all hostages. Phase 3: Gaza reconstruction. Hamas signals interest; Netanyahu faces coalition pressure against Phase 2.',
+    events: [
+      'May 31 — Biden announces 3-phase bridging proposal at White House press conference',
+      'Jun 10 — IDF special forces rescue 4 live hostages in Nuseirat camp; ~274 Palestinians killed in the operation',
+      'Jun 12 — Hamas fires back at Biden plan; demands full IDF withdrawal and end to war in writing before Phase 1',
+      'Jul 8 — Israel launches new major offensive in Khan Younis after brief withdrawal',
+      'Jul 13 — IDF strike on displaced persons camp in al-Mawasi kills 90+',
+    ],
+    metrics: {
+      gazaDeaths: { val: 38000, fmt: '38,000+', note: 'MoH cumulative', color: '#f85149' },
+      idfDeaths:  { val: 680,   fmt: '~680',    note: 'IDF official',   color: '#ffa657' },
+      civDeaths:  { val: 1200,  fmt: '~1,200',  note: 'Israel Police', color: '#f85149' },
+      hamasKilled:{ val: 17000, fmt: '~17,000', note: 'IDF estimate', color: '#ffa657' },
+      buildingsPct:{ val: 45,   fmt: '~45%',    note: 'UNOSAT est. between Jan–Sep assessments', color: '#d29922' },
+      buildingsN: { val: 100000, fmt: '~100,000', note: 'interpolated estimate', color: '#d29922' },
+      displaced:  { val: 1900000, fmt: '1.9M',  note: '90%+ of population — UNRWA', color: '#ffa657' },
+      hamasApproval:{ val: 57, fmt: '57%',  note: 'PCPSR Jun 2024', color: '#bc8cff' },
+      bibiApproval: { val: 30, fmt: '~30%', note: 'IDI Jul 2024', color: '#79c0ff' },
+      aidTrucks:  { val: 55, fmt: '~55/day', note: 'OCHA — Kerem Shalom partially open', color: '#56d364' },
+      gdpChange:  { val: -83, fmt: '~-83%',  note: 'UNCTAD mid-2024 estimate', color: '#f85149' },
+      globalUnfav:{ val: 59, fmt: '59%',     note: 'Pew Spring 2024 — median across 34 countries unfavorable view of Israel', color: '#e3b341' },
+    }
+  },
+  {
+    date: 'Nov 1, 2024',
+    label: 'Episode 4',
+    title: 'Post-Election Limbo',
+    desc: "Trump wins the U.S. presidential election. Netanyahu senses a window of maximum military pressure before the transition. Talks stall; Hamas demands written guarantees of a permanent ceasefire, which Israel's coalition won't provide.",
+    events: [
+      'Oct 1 — Iran fires ~200 ballistic missiles at Israel in retaliation for assassinations of Nasrallah and Haniyeh',
+      'Oct 16 — IDF kills Hamas chief Yahya Sinwar in Rafah — removes principal negotiating obstacle; Hamas names new leadership',
+      'Nov 5 — Donald Trump wins U.S. presidential election',
+      'Nov — Talks resume with Trump envoy signals; Netanyahu faces less U.S. pressure on Rafah',
+      'Nov — Israeli airstrikes resume at intensity across northern Gaza; famine conditions declared in north',
+    ],
+    metrics: {
+      gazaDeaths: { val: 42718, fmt: '42,718', note: 'MoH Oct 31 bulletin', color: '#f85149' },
+      idfDeaths:  { val: 850,   fmt: '~850',   note: 'IDF official', color: '#ffa657' },
+      civDeaths:  { val: 1200,  fmt: '~1,200', note: 'Israel Police', color: '#f85149' },
+      hamasKilled:{ val: 19000, fmt: '~19,000', note: 'IDF estimate', color: '#ffa657' },
+      buildingsPct:{ val: 60,   fmt: '~60%',   note: 'UNOSAT Sep 2024 — 166,000 structures', color: '#d29922' },
+      buildingsN: { val: 166000, fmt: '~166,000', note: 'UNOSAT Sep 2024 est.', color: '#d29922' },
+      displaced:  { val: 1900000, fmt: '1.9M+', note: 'UNRWA/OCHA', color: '#ffa657' },
+      hamasApproval:{ val: 39, fmt: '39%',  note: 'PCPSR Sep 2024 — Sinwar killing impact', color: '#bc8cff' },
+      bibiApproval: { val: 38, fmt: '38%',  note: 'IDI post-Sinwar bounce', color: '#79c0ff' },
+      aidTrucks:  { val: 30, fmt: '~30/day', note: 'OCHA — severe restrictions north Gaza', color: '#56d364' },
+      gdpChange:  { val: -85, fmt: '~-85%',  note: 'World Bank 2024 mid-year update', color: '#f85149' },
+      globalUnfav:{ val: 61, fmt: '61%',     note: 'YouGov-Cambridge Sep 2024 (22 countries)', color: '#e3b341' },
+    }
+  },
+  {
+    date: 'Jan 19, 2025',
+    label: 'Episode 5',
+    title: 'Phase 1 Ceasefire Deal',
+    desc: 'Qatar, Egypt, and the incoming Trump team finalize a 3-phase agreement. Phase 1: 42-day ceasefire, release of 33 hostages (living and dead) for ~1,000 Palestinian prisoners, surge of humanitarian aid, IDF withdraws from population corridors.',
+    events: [
+      'Jan 15 — Deal framework announced; Netanyahu\'s cabinet votes to approve despite far-right coalition threats',
+      'Jan 19 — Phase 1 ceasefire begins; first hostages released including Romi Gonen, Emily Damari, Doron Steinbrecher',
+      'Jan 20 — Trump inaugurated; declares himself responsible for the deal; Steve Witkoff leads U.S. negotiation team',
+      'Jan–Mar — IDF begins phased withdrawal from Netzarim corridor; 200,000 displaced Gazans return north',
+      'Feb — Aid surge: 600+ trucks/day during peak; WFP and UNRWA resume northern operations',
+    ],
+    metrics: {
+      gazaDeaths: { val: 47161, fmt: '47,161', note: 'MoH Jan 19 bulletin', color: '#f85149' },
+      idfDeaths:  { val: 891,   fmt: '891',    note: 'IDF official at ceasefire', color: '#ffa657' },
+      civDeaths:  { val: 1200,  fmt: '~1,200', note: 'Israel Police', color: '#f85149' },
+      hamasKilled:{ val: 20000, fmt: '~20,000', note: 'IDF estimate at ceasefire', color: '#ffa657' },
+      buildingsPct:{ val: 72,   fmt: '~72%',   note: 'UNOSAT est. at ceasefire', color: '#d29922' },
+      buildingsN: { val: 160000, fmt: '~160,000+', note: 'UNOSAT / UN Satellite Centre', color: '#d29922' },
+      displaced:  { val: 1900000, fmt: '1.9M',  note: 'UNRWA — 90%+ of population', color: '#ffa657' },
+      hamasApproval:{ val: null, fmt: '—',  note: 'No PCPSR survey published Jan 2025', color: '#6e7681' },
+      bibiApproval: { val: 40,  fmt: '~40%', note: 'IDI Jan 2025', color: '#79c0ff' },
+      aidTrucks:  { val: 780, fmt: '~780/day', note: 'OCHA surge during Phase 1 opening weeks', color: '#56d364' },
+      gdpChange:  { val: -83, fmt: '-83%',     note: 'World Bank / UNCTAD full-year 2024', color: '#f85149' },
+      globalUnfav:{ val: 62,  fmt: '62%',      note: 'Pew Research / YouGov Jan 2025', color: '#e3b341' },
+    }
+  },
+  {
+    date: 'Oct 2025',
+    label: 'Episode 6',
+    title: 'Phase 3 Negotiations (Ongoing)',
+    desc: 'Phase 1 collapsed in March 2025 after Israel resumed strikes over Phase 2 disagreements. A fragile Phase 2 deal is reached in August 2025. Full war status remains contested; Phase 3 reconstruction talks have not formally begun. Hostage crisis partially resolved.',
+    events: [
+      'Mar 2025 — Israel resumes airstrikes, citing Hamas violations of Phase 1; U.S. backs Israeli position',
+      'May 2025 — Full siege reimposed; aid drops to near-zero for weeks; starvation declared in north',
+      'Jun 2025 — Hamas releases 3 more living hostages under pressure; ~50 remain unaccounted for',
+      'Aug 2025 — Phase 2 framework agreed; IDF begins partial withdrawal; Hamas releases more hostages',
+      'Oct 2025 — International donors pledge $50B reconstruction fund contingent on permanent ceasefire',
+    ],
+    metrics: {
+      gazaDeaths: { val: 68500, fmt: '68,500+', note: 'MoH cumulative Oct 2025', color: '#f85149' },
+      idfDeaths:  { val: 1042,  fmt: '1,042',   note: 'IDF official', color: '#ffa657' },
+      civDeaths:  { val: 1250,  fmt: '~1,250',  note: 'incl. West Bank killings', color: '#f85149' },
+      hamasKilled:{ val: 22000, fmt: '~22,000', note: 'IDF estimate — high uncertainty', color: '#ffa657' },
+      buildingsPct:{ val: 81,   fmt: '81%',     note: 'UNOSAT Mar 2025 — 198,273 structures', color: '#d29922' },
+      buildingsN: { val: 198273, fmt: '198,273', note: 'UNOSAT Mar 2025 — verified satellite', color: '#d29922' },
+      displaced:  { val: 2100000, fmt: '2.1M',  note: 'incl. repeated displacement', color: '#ffa657' },
+      hamasApproval:{ val: 44, fmt: '44%',  note: 'PCPSR Jun 2025 — partial recovery post-ceasefire', color: '#bc8cff' },
+      bibiApproval: { val: 52, fmt: '~52%', note: 'IDI Sep 2025 — hostage deal credit', color: '#79c0ff' },
+      aidTrucks:  { val: 700, fmt: '~700/day', note: 'OCHA Phase 2 access (fluctuating)', color: '#56d364' },
+      gdpChange:  { val: -87, fmt: '-87%',     note: 'World Bank Sep 2025 update', color: '#f85149' },
+      globalUnfav:{ val: 65,  fmt: '65%',      note: 'Pew Spring 2025 (median 34 countries)', color: '#e3b341' },
+    }
+  },
+];
+
+const METRIC_DEFS = [
+  { key: 'gazaDeaths',    label: 'Gaza Deaths',           icon: '🕯', unit: '' },
+  { key: 'idfDeaths',     label: 'IDF Soldiers Killed',   icon: '⚔', unit: '' },
+  { key: 'civDeaths',     label: 'Israeli Civilians Killed', icon: '⚔', unit: '' },
+  { key: 'hamasKilled',   label: 'Hamas Combatants Killed', icon: '⚔', unit: '' },
+  { key: 'buildingsPct',  label: 'Buildings Destroyed/Damaged', icon: '🏚', unit: '%' },
+  { key: 'buildingsN',    label: 'Structures Damaged',    icon: '🏚', unit: '' },
+  { key: 'displaced',     label: 'People Displaced',      icon: '🏃', unit: '' },
+  { key: 'hamasApproval', label: 'Hamas Approval (Gaza)', icon: '📊', unit: '%' },
+  { key: 'bibiApproval',  label: 'Netanyahu Approval (Israel)', icon: '📊', unit: '%' },
+  { key: 'globalUnfav',   label: 'Global Unfavorable View of Israel', icon: '🌍', unit: '%' },
+  { key: 'aidTrucks',     label: 'Aid Trucks / Day',      icon: '🚛', unit: '' },
+  { key: 'gdpChange',     label: 'Gaza GDP Change',       icon: '📉', unit: '%' },
+];
+
+function fmtNum(n) {
+  if (n === null || n === undefined) return null;
+  if (Math.abs(n) >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (Math.abs(n) >= 1000) return n.toLocaleString();
+  return String(n);
+}
+
+// Bar chart helper
+function sparkBar(val, maxVal, color) {
+  if (val === null || maxVal === 0) return '';
+  const pct = Math.min(100, (Math.abs(val) / maxVal) * 100);
+  return `<div style="width:100%;background:#21262d;border-radius:2px;height:4px;margin-top:6px">
+    <div style="width:${pct}%;background:${color};height:4px;border-radius:2px;transition:width .4s"></div>
+  </div>`;
+}
+
+const MAX_VALS = {
+  gazaDeaths: 70000, idfDeaths: 1100, civDeaths: 1300, hamasKilled: 22000,
+  buildingsPct: 100, buildingsN: 210000, displaced: 2200000,
+  hamasApproval: 100, bibiApproval: 100, globalUnfav: 100,
+  aidTrucks: 800, gdpChange: 100,
+};
+
+function renderEpisode(idx) {
+  const ep = EPISODES[idx];
+
+  // Fill progress bar
+  const fillPct = idx === 0 ? 0 : (idx / (EPISODES.length - 1)) * 100;
+  document.getElementById('wn-fill').style.width = fillPct + '%';
+
+  // Highlight active dot
+  document.querySelectorAll('.wn-dot').forEach((d, i) => {
+    d.style.background = i <= idx ? '#58a6ff' : '#30363d';
+    d.style.transform = i === idx ? 'scale(1.4)' : 'scale(1)';
+    d.querySelector('.wn-dot-label').style.color = i === idx ? '#e6edf3' : '#6e7681';
+    d.querySelector('.wn-dot-label').style.fontWeight = i === idx ? '700' : '400';
+  });
+
+  // Episode header
+  document.getElementById('wn-ep-title').textContent = ep.date + ' — ' + ep.title;
+  document.getElementById('wn-ep-desc').textContent = ep.desc;
+
+  // Metric cards
+  const cardsEl = document.getElementById('wn-cards');
+  cardsEl.innerHTML = '';
+  METRIC_DEFS.forEach(def => {
+    const m = ep.metrics[def.key];
+    const card = document.createElement('div');
+    card.style.cssText = 'background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px 16px;transition:border-color .2s';
+    card.onmouseenter = () => card.style.borderColor = '#58a6ff';
+    card.onmouseleave = () => card.style.borderColor = '#30363d';
+
+    const bar = sparkBar(def.unit === '%' ? Math.abs(m.val) : m.val, MAX_VALS[def.key], m.color);
+    card.innerHTML = `
+      <div style="font-size:.72rem;color:#6e7681;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">${def.label}</div>
+      <div style="font-size:1.55rem;font-weight:700;color:${m.color};line-height:1.1">${m.fmt}</div>
+      ${bar}
+      <div style="font-size:.73rem;color:#6e7681;margin-top:6px;line-height:1.4">${m.note}</div>
+    `;
+    cardsEl.appendChild(card);
+  });
+
+  // Events list
+  const eventsEl = document.getElementById('wn-events');
+  eventsEl.innerHTML = '';
+  ep.events.forEach(e => {
+    const li = document.createElement('li');
+    li.textContent = e;
+    eventsEl.appendChild(li);
+  });
+}
+
+// Build episode dots
+const dotsEl = document.getElementById('wn-episodes');
+EPISODES.forEach((ep, i) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'wn-dot';
+  wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;cursor:pointer;width:36px;transition:transform .2s';
+  wrap.innerHTML = `
+    <div style="width:14px;height:14px;border-radius:50%;background:#30363d;border:2px solid #58a6ff;transition:background .2s,transform .2s;z-index:2"></div>
+    <div class="wn-dot-label" style="font-size:.68rem;color:#6e7681;margin-top:5px;text-align:center;white-space:nowrap;transition:color .2s">${ep.label}</div>
+    <div style="font-size:.62rem;color:#6e7681;text-align:center;white-space:nowrap">${ep.date}</div>
+  `;
+  wrap.addEventListener('click', () => {
+    document.getElementById('wn-slider').value = i;
+    renderEpisode(i);
+  });
+  dotsEl.appendChild(wrap);
+});
+
+// Slider input
+document.getElementById('wn-slider').addEventListener('input', function() {
+  renderEpisode(parseInt(this.value));
+});
+
+// Initial render
+renderEpisode(0);
+
+})();
+</script>
+
 </body>
 </html>
