@@ -139,11 +139,15 @@ select {
 <!-- ═══════════════════════ QATAR DEEP DIVE ═══════════════════════ -->
 <div style="border-top:2px solid #21262d;padding:1.75rem 1.75rem 2.5rem;background:#0d1117">
 
+  <!-- Leaflet CSS/JS (reuse if already loaded, otherwise load here) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
   <!-- Header -->
   <div style="margin-bottom:1.25rem">
     <span class="eyebrow" style="color:#e3b341">Deep Dive</span>
     <h2 style="font-size:1.25rem;font-weight:700;color:#e6edf3;margin:.35rem 0 .45rem">Qatar: The Indispensable Broker</h2>
-    <p style="font-size:.78rem;color:#8b949e;max-width:760px;line-height:1.6;margin:0">A nation the size of Connecticut leveraged geography, gas wealth, and deliberate risk-taking to become Washington&#39;s preferred channel to extremist groups and pariah states &mdash; while provoking fury from its neighbors. <span style="color:#6e7681">WSJ &middot; Nov. 25, 2023</span></p>
+    <p style="font-size:.78rem;color:#8b949e;max-width:760px;line-height:1.6;margin:0">A nation the size of Connecticut leveraged geography, gas wealth, and deliberate risk-taking to become Washington's preferred channel to extremist groups and pariah states — while provoking fury from its neighbors. <span style="color:#6e7681">WSJ · Nov. 25, 2023</span></p>
   </div>
 
   <!-- Layout: map left, sidebar right -->
@@ -151,138 +155,17 @@ select {
 
     <!-- MAP -->
     <div>
-      <svg viewBox="0 0 900 530" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;border-radius:8px;border:1px solid #21262d">
+      <div id="qatarMap" style="height:500px;border-radius:8px;border:1px solid #21262d;overflow:hidden"></div>
 
-        <!-- Ocean background -->
-        <rect width="900" height="530" fill="#091824"/>
-
-        <!-- LAND: Turkey (top strip) -->
-        <polygon points="145,0 520,0 520,82 445,62 365,68 270,74 200,84 145,78" fill="#1c2b3a" stroke="#263a50" stroke-width="0.5"/>
-        <!-- LAND: Syria / Lebanon -->
-        <polygon points="295,74 445,62 470,148 440,195 368,212 305,205 293,162 298,115" fill="#1c2b3a" stroke="#263a50" stroke-width="0.5"/>
-        <!-- LAND: Israel / Palestine -->
-        <polygon points="290,162 312,157 326,178 323,228 306,244 289,228 288,195" fill="#1c2b3a" stroke="#263a50" stroke-width="0.5"/>
-        <!-- LAND: Jordan -->
-        <polygon points="312,205 380,212 415,208 448,260 398,290 332,290 305,260 306,244 323,228" fill="#1c2b3a" stroke="#263a50" stroke-width="0.5"/>
-        <!-- LAND: Egypt (including Sinai) -->
-        <polygon points="0,188 293,188 323,228 340,268 336,295 292,365 242,395 165,422 88,442 0,452" fill="#1c2b3a" stroke="#263a50" stroke-width="0.5"/>
-        <!-- LAND: Iraq -->
-        <polygon points="393,72 524,72 550,152 550,188 536,242 472,244 448,260 415,208 393,178" fill="#1c2b3a" stroke="#263a50" stroke-width="0.5"/>
-        <!-- LAND: Kuwait (small) -->
-        <polygon points="536,224 558,216 570,224 572,242 552,250 536,244" fill="#1c2b3a" stroke="#263a50" stroke-width="0.5"/>
-        <!-- LAND: Iran (distinctive, N of Gulf) -->
-        <polygon points="520,52 598,34 678,30 760,36 855,48 900,82 900,295 808,312 768,298 728,292 695,280 660,258 632,230 598,222 572,216 550,180 520,102" fill="#1e1e36" stroke="#2e2e52" stroke-width="0.8"/>
-        <!-- LAND: Saudi Arabia (large) -->
-        <polygon points="292,290 448,260 472,244 536,244 572,242 598,235 604,268 616,308 642,308 677,322 712,332 748,298 786,334 836,374 864,424 895,482 900,530 490,530 195,530 155,428 242,395 292,365 336,295" fill="#1c2b3a" stroke="#263a50" stroke-width="0.5"/>
-        <!-- LAND: UAE -->
-        <polygon points="712,332 748,298 786,334 836,374 836,395 796,388 756,374 718,358 698,342" fill="#1e2d3e" stroke="#283d52" stroke-width="0.6"/>
-
-        <!-- WATER: Mediterranean -->
-        <polygon points="0,0 145,0 200,84 158,188 100,205 0,205" fill="#091824" stroke="none"/>
-        <polygon points="145,0 295,74 295,162 290,162 255,188 158,188 200,84" fill="#0a1c2e" stroke="none"/>
-        <!-- WATER: Red Sea -->
-        <polygon points="292,290 336,295 375,355 415,428 455,505 425,530 195,530 155,428 242,395 292,365" fill="#091824" stroke="none"/>
-        <!-- WATER: Persian Gulf -->
-        <polygon points="572,216 598,222 632,230 660,258 695,280 728,292 768,298 796,312 788,334 748,298 712,332 698,342 677,322 643,308 616,308 604,268 598,235 570,242 536,244 552,250 536,244" fill="#091824" stroke="none"/>
-        <!-- WATER: Gulf of Oman / Strait of Hormuz -->
-        <polygon points="786,334 808,312 900,295 900,400 864,424 836,374" fill="#0a1c2e" stroke="none"/>
-
-        <!-- Qatar peninsula (highlighted, redrawn on top of gulf water) -->
-        <polygon points="604,270 616,248 630,242 644,252 642,278 634,308 618,312 604,298" fill="#1b3055" stroke="#2d5080" stroke-width="1.5"/>
-        <!-- Bahrain islands -->
-        <ellipse cx="588" cy="276" rx="7" ry="5" fill="#1c2b3a" stroke="#263a50" stroke-width="0.8"/>
-
-        <!-- WATER LABELS -->
-        <text x="690" y="305" text-anchor="middle" font-size="9" fill="#112840" font-family="Inter,sans-serif" font-style="italic" font-weight="600">Persian Gulf</text>
-        <text x="172" y="112" text-anchor="middle" font-size="8" fill="#0f2236" font-family="Inter,sans-serif" font-style="italic">Mediterranean</text>
-        <text x="345" y="408" text-anchor="middle" font-size="8" fill="#0f2236" font-family="Inter,sans-serif" font-style="italic">Red Sea</text>
-        <text x="852" y="355" text-anchor="middle" font-size="7.5" fill="#0f2236" font-family="Inter,sans-serif" font-style="italic">Gulf of Oman</text>
-
-        <!-- COUNTRY LABELS -->
-        <text x="688" y="148" text-anchor="middle" font-size="13" fill="#38384e" font-family="Inter,sans-serif" font-weight="700" letter-spacing="1">IRAN</text>
-        <text x="480" y="385" text-anchor="middle" font-size="12" fill="#344050" font-family="Inter,sans-serif" font-weight="700" letter-spacing="1">SAUDI ARABIA</text>
-        <text x="180" y="322" text-anchor="middle" font-size="10" fill="#344050" font-family="Inter,sans-serif" font-weight="700">EGYPT</text>
-        <text x="478" y="162" text-anchor="middle" font-size="9" fill="#344050" font-family="Inter,sans-serif" font-weight="700">IRAQ</text>
-        <text x="372" y="140" text-anchor="middle" font-size="8" fill="#344050" font-family="Inter,sans-serif" font-weight="700">SYRIA</text>
-        <text x="308" y="252" text-anchor="middle" font-size="7" fill="#344050" font-family="Inter,sans-serif" font-weight="700">JORDAN</text>
-        <text x="780" y="372" font-size="8" fill="#344050" font-family="Inter,sans-serif" font-weight="700">UAE</text>
-        <text x="548" y="238" font-size="7" fill="#344050" font-family="Inter,sans-serif">KUWAIT</text>
-        <text x="322" y="46" text-anchor="middle" font-size="9" fill="#344050" font-family="Inter,sans-serif" font-weight="700">TURKEY</text>
-        <text x="624" y="276" text-anchor="middle" font-size="7.5" fill="#6090b8" font-family="Inter,sans-serif" font-weight="700" letter-spacing="0.5">QATAR</text>
-
-        <!-- NORTH FIELD / SOUTH PARS GAS FIELD -->
-        <ellipse cx="628" cy="234" rx="40" ry="20" fill="#f0a500" opacity="0.07"/>
-        <ellipse cx="628" cy="234" rx="40" ry="20" fill="none" stroke="#f0a500" stroke-width="1.5" stroke-dasharray="5 3" opacity="0.85"/>
-        <line x1="590" y1="234" x2="668" y2="234" stroke="#f0a500" stroke-width="1" stroke-dasharray="3 2" opacity="0.55"/>
-        <text x="628" y="226" text-anchor="middle" font-size="6.5" fill="#d09000" font-family="Inter,sans-serif" font-weight="600">SOUTH PARS (Iran)</text>
-        <text x="628" y="244" text-anchor="middle" font-size="6.5" fill="#d09000" font-family="Inter,sans-serif" font-weight="600">NORTH FIELD (Qatar)</text>
-        <!-- Callout -->
-        <rect x="462" y="188" width="180" height="28" rx="4" fill="#120e02" stroke="#f0a500" stroke-width="0.8" opacity="0.95"/>
-        <text x="552" y="200" text-anchor="middle" font-size="7.5" fill="#f0a500" font-family="Inter,sans-serif" font-weight="700">World's Largest Natural Gas Field</text>
-        <text x="552" y="211" text-anchor="middle" font-size="6.8" fill="#a07800" font-family="Inter,sans-serif">Shared with Iran · funds Qatar's entire strategy</text>
-        <line x1="582" y1="216" x2="608" y2="228" stroke="#f0a500" stroke-width="0.8" opacity="0.5"/>
-
-        <!-- DOHA dot -->
-        <circle cx="622" cy="300" r="4.5" fill="#58a6ff" stroke="#1a3a5c" stroke-width="1.5"/>
-        <text x="622" y="294" text-anchor="middle" font-size="8.5" fill="#e6edf3" font-family="Inter,sans-serif" font-weight="700">DOHA</text>
-
-        <!-- Al Udeid Air Base -->
-        <polygon points="576,334 581,322 586,334 574,327 588,327" fill="#388bfd" opacity="0.9"/>
-        <rect x="554" y="337" width="56" height="24" rx="3" fill="#060f20" stroke="#1f6feb" stroke-width="0.8"/>
-        <text x="582" y="347" text-anchor="middle" font-size="7" fill="#58a6ff" font-family="Inter,sans-serif" font-weight="700">AL UDEID AB</text>
-        <text x="582" y="356" text-anchor="middle" font-size="6" fill="#388bfd" font-family="Inter,sans-serif">Largest US base in ME</text>
-        <line x1="581" y1="337" x2="580" y2="331" stroke="#388bfd" stroke-width="0.8" opacity="0.6"/>
-
-        <!-- Hamas Political Bureau HQ -->
-        <circle cx="656" cy="316" r="5" fill="#da3633" stroke="#f85149" stroke-width="1.2" opacity="0.9"/>
-        <rect x="638" y="322" width="86" height="24" rx="3" fill="#140404" stroke="#da3633" stroke-width="0.8"/>
-        <text x="681" y="332" text-anchor="middle" font-size="7" fill="#f85149" font-family="Inter,sans-serif" font-weight="700">HAMAS BUREAU HQ</text>
-        <text x="681" y="341" text-anchor="middle" font-size="6" fill="#a02828" font-family="Inter,sans-serif">Political leadership in exile</text>
-        <line x1="656" y1="321" x2="660" y2="322" stroke="#da3633" stroke-width="0.8" opacity="0.6"/>
-
-        <!-- Al Jazeera HQ -->
-        <rect x="616" y="348" width="10" height="10" rx="2" fill="#bc8cff" stroke="#7c5cbf" stroke-width="1" opacity="0.9"/>
-        <rect x="594" y="360" width="72" height="24" rx="3" fill="#100a1e" stroke="#7c5cbf" stroke-width="0.8"/>
-        <text x="630" y="371" text-anchor="middle" font-size="7" fill="#bc8cff" font-family="Inter,sans-serif" font-weight="700">AL JAZEERA HQ</text>
-        <text x="630" y="380" text-anchor="middle" font-size="6" fill="#7c5cbf" font-family="Inter,sans-serif">Pan-Arab broadcaster</text>
-        <line x1="621" y1="358" x2="621" y2="360" stroke="#bc8cff" stroke-width="0.8" opacity="0.6"/>
-
-        <!-- Israel / Gaza marker -->
-        <circle cx="308" cy="212" r="4" fill="#e3b341" stroke="#a07820" stroke-width="1.2"/>
-        <text x="318" y="207" font-size="8" fill="#e3b341" font-family="Inter,sans-serif" font-weight="700">ISRAEL</text>
-        <text x="318" y="217" font-size="7" fill="#b08030" font-family="Inter,sans-serif">/ GAZA</text>
-
-        <!-- Tehran dot -->
-        <circle cx="662" cy="130" r="3.5" fill="#8b949e" stroke="#4a5568" stroke-width="1"/>
-        <text x="670" y="134" font-size="8" fill="#6e7681" font-family="Inter,sans-serif">Tehran</text>
-
-        <!-- DEFS: arrowhead markers -->
-        <defs>
-          <marker id="aj-arr" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
-            <polygon points="0 0, 9 3.5, 0 7" fill="#bc8cff" opacity="0.75"/>
-          </marker>
-          <marker id="blk-arr" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
-            <polygon points="0 0, 9 3.5, 0 7" fill="#fb8500" opacity="0.85"/>
-          </marker>
-        </defs>
-
-        <!-- AL JAZEERA INFLUENCE ARROWS (purple dashed, outward from Qatar) -->
-        <path d="M 616,358 Q 430,330 222,368" stroke="#bc8cff" stroke-width="1.4" fill="none" stroke-dasharray="5 3" marker-end="url(#aj-arr)" opacity="0.55"/>
-        <path d="M 614,354 Q 480,260 322,185" stroke="#bc8cff" stroke-width="1.4" fill="none" stroke-dasharray="5 3" marker-end="url(#aj-arr)" opacity="0.55"/>
-        <path d="M 618,368 Q 575,405 514,403" stroke="#bc8cff" stroke-width="1.2" fill="none" stroke-dasharray="5 3" marker-end="url(#aj-arr)" opacity="0.42"/>
-        <text x="448" y="320" font-size="7" fill="#7c5cbf" font-family="Inter,sans-serif" font-style="italic" opacity="0.9">Al Jazeera broadcasts</text>
-        <text x="440" y="329" font-size="7" fill="#7c5cbf" font-family="Inter,sans-serif" font-style="italic" opacity="0.9">critical of Arab govts</text>
-
-        <!-- 2017 GULF BLOCKADE ARROWS (orange dashed, pointing AT Qatar) -->
-        <path d="M 520,372 L 600,328" stroke="#fb8500" stroke-width="1.6" fill="none" stroke-dasharray="4 3" marker-end="url(#blk-arr)" opacity="0.7"/>
-        <path d="M 722,342 L 655,318" stroke="#fb8500" stroke-width="1.6" fill="none" stroke-dasharray="4 3" marker-end="url(#blk-arr)" opacity="0.7"/>
-        <path d="M 215,348 Q 395,305 596,316" stroke="#fb8500" stroke-width="1.2" fill="none" stroke-dasharray="4 3" marker-end="url(#blk-arr)" opacity="0.38"/>
-        <rect x="482" y="344" width="120" height="24" rx="4" fill="#130b02" stroke="#fb8500" stroke-width="0.9" opacity="0.95"/>
-        <text x="542" y="354" text-anchor="middle" font-size="7.5" fill="#fb8500" font-family="Inter,sans-serif" font-weight="700">2017 GULF BLOCKADE</text>
-        <text x="542" y="363" text-anchor="middle" font-size="6.5" fill="#a05800" font-family="Inter,sans-serif">Saudi · UAE · Bahrain · Egypt</text>
-
-        <text x="895" y="524" text-anchor="end" font-size="6.5" fill="#21262d" font-family="Inter,sans-serif">Schematic · not to scale</text>
-      </svg>
+      <!-- MAP LEGEND -->
+      <div style="display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;padding:.7rem .25rem 0;font-size:.68rem;color:#8b949e">
+        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:12px;height:12px;border-radius:50%;background:#388bfd;display:inline-block"></span>Al Udeid Air Base (US military)</span>
+        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:12px;height:12px;border-radius:50%;background:#f85149;display:inline-block"></span>Hamas Political Bureau HQ</span>
+        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:12px;height:12px;border-radius:2px;background:#bc8cff;display:inline-block"></span>Al Jazeera HQ</span>
+        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:28px;height:3px;background:#f0a500;display:inline-block;border-top:2px dashed #f0a500"></span>North Field / South Pars gas field</span>
+        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:28px;height:2px;background:repeating-linear-gradient(90deg,#bc8cff 0,#bc8cff 5px,transparent 5px,transparent 8px);display:inline-block"></span>Al Jazeera influence</span>
+        <span style="display:flex;align-items:center;gap:.35rem"><span style="width:28px;height:2px;background:repeating-linear-gradient(90deg,#fb8500 0,#fb8500 4px,transparent 4px,transparent 7px);display:inline-block"></span>2017 blockade</span>
+      </div>
     </div>
 
     <!-- SIDEBAR -->
@@ -330,6 +213,119 @@ select {
     </div>
   </div>
 </div>
+
+<script>
+(function() {
+  // Initialise Leaflet map centred on the Gulf region
+  const qMap = L.map('qatarMap', { zoomControl: true, scrollWheelZoom: false })
+    .setView([27.5, 45], 5);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+    subdomains: 'abcd', maxZoom: 19
+  }).addTo(qMap);
+
+  // ── Helper: circle marker ──
+  function dot(lat, lng, color, r) {
+    return L.circleMarker([lat, lng], {
+      radius: r || 7, color, weight: 2,
+      fillColor: color, fillOpacity: 0.9
+    });
+  }
+
+  // ── Al Udeid Air Base (US military) ──
+  dot(25.117, 51.315, '#388bfd', 9).addTo(qMap)
+    .bindPopup('<b>Al Udeid Air Base</b><br>Largest U.S. military base in the Middle East.<br>Hosts ~10,000 US personnel. Built after US troops relocated from Saudi Arabia.');
+
+  // ── Hamas Political Bureau HQ ──
+  dot(25.285, 51.535, '#f85149', 9).addTo(qMap)
+    .bindPopup('<b>Hamas Political Bureau HQ — Doha</b><br>Hamas leadership relocated here from Damascus after Syrian civil war erupted.<br>Qatar opened the channel at U.S. request; provides $100s M in aid to Gaza.');
+
+  // ── Al Jazeera HQ ──
+  L.circleMarker([25.255, 51.44], {
+    radius: 8, color: '#bc8cff', weight: 2,
+    fillColor: '#bc8cff', fillOpacity: 0.9
+  }).addTo(qMap)
+    .bindPopup('<b>Al Jazeera HQ — Doha</b><br>Pan-Arab broadcaster launched with gas-field revenues. Critical coverage of Arab Spring and Iraq War infuriated regional govts. Saudi Arabia, UAE, Bahrain & Egypt demanded it be shut down in 2017. Qatar refused.');
+
+  // ── North Field / South Pars gas field ──
+  // Draw an ellipse-like polygon in the Gulf between Qatar and Iran
+  // The field straddles roughly 26–27.5°N, 50–53°E
+  const gasFieldCoords = [
+    [27.5, 50.2], [27.8, 51.0], [28.0, 51.8], [27.8, 52.8],
+    [27.2, 53.0], [26.5, 52.5], [26.2, 51.5], [26.4, 50.5], [27.0, 50.0]
+  ];
+  L.polygon(gasFieldCoords, {
+    color: '#f0a500', weight: 2, dashArray: '6 4',
+    fillColor: '#f0a500', fillOpacity: 0.12
+  }).addTo(qMap)
+    .bindPopup('<b>North Field / South Pars</b><br>The world\'s largest natural gas field, shared between Qatar (North Field) and Iran (South Pars).<br>Discovered in 1971 — Qatar controls the larger share. Revenues fund Qatar\'s entire diplomatic strategy.');
+
+  // Gas field label via marker with divIcon
+  L.marker([27.2, 51.6], { icon: L.divIcon({
+    className: '',
+    html: '<div style="background:rgba(15,10,2,0.85);border:1px solid #f0a500;border-radius:4px;padding:3px 7px;font-size:10px;font-family:Inter,sans-serif;color:#f0a500;font-weight:700;white-space:nowrap">North Field / South Pars</div>',
+    iconAnchor: [75, 10]
+  })}).addTo(qMap);
+
+  // ── Al Jazeera influence arrows (polylines with arrowheads via SVG) ──
+  // Using Leaflet.Polyline.SnakeAnim is overkill; we'll use simple polylines with custom arrow ends
+  // Arrow to Egypt (Cairo)
+  const ajColor = '#bc8cff';
+  const ajOpts = { color: ajColor, weight: 1.5, dashArray: '6 4', opacity: 0.6 };
+  L.polyline([[25.25, 51.44], [30.06, 31.24]], ajOpts).addTo(qMap); // to Cairo
+  L.polyline([[25.25, 51.44], [33.89, 35.50]], ajOpts).addTo(qMap); // to Beirut
+  L.polyline([[25.25, 51.44], [24.69, 46.72]], ajOpts).addTo(qMap); // to Riyadh
+  L.polyline([[25.25, 51.44], [31.95, 35.93]], ajOpts).addTo(qMap); // to Amman/West Bank
+
+  // Arrowhead dots at destination ends
+  [
+    [30.06, 31.24], [33.89, 35.50], [24.69, 46.72], [31.95, 35.93]
+  ].forEach(([lat, lng]) => {
+    L.circleMarker([lat, lng], {
+      radius: 4, color: ajColor, weight: 1.5,
+      fillColor: ajColor, fillOpacity: 0.6
+    }).addTo(qMap);
+  });
+
+  // ── 2017 Blockade arrows ──
+  const blkColor = '#fb8500';
+  const blkOpts = { color: blkColor, weight: 2, dashArray: '5 4', opacity: 0.7 };
+  // Saudi Arabia → Qatar
+  L.polyline([[24.69, 46.72], [25.30, 51.20]], blkOpts).addTo(qMap);
+  // UAE → Qatar
+  L.polyline([[24.47, 54.37], [25.30, 51.50]], blkOpts).addTo(qMap);
+  // Egypt → Qatar
+  L.polyline([[30.06, 31.24], [25.45, 51.00]], blkOpts).addTo(qMap);
+  // Bahrain → Qatar
+  L.polyline([[26.22, 50.58], [25.70, 51.15]], blkOpts).addTo(qMap);
+
+  // Blockade label
+  L.marker([23.8, 48.5], { icon: L.divIcon({
+    className: '',
+    html: '<div style="background:rgba(19,11,2,0.9);border:1px solid #fb8500;border-radius:4px;padding:3px 8px;font-size:10px;font-family:Inter,sans-serif;color:#fb8500;font-weight:700;white-space:nowrap">2017 Gulf Blockade</div>',
+    iconAnchor: [70, 10]
+  })}).addTo(qMap);
+
+  // ── City labels ──
+  function label(lat, lng, text, color) {
+    return L.marker([lat, lng], { icon: L.divIcon({
+      className: '',
+      html: `<div style="font-size:9px;font-family:Inter,sans-serif;color:${color || '#8b949e'};font-weight:600;white-space:nowrap;text-shadow:0 1px 3px #000">${text}</div>`,
+      iconAnchor: [0, 0]
+    })});
+  }
+  label(25.28, 51.57, 'Doha', '#e6edf3').addTo(qMap);
+  label(35.68, 51.50, 'Tehran', '#8b949e').addTo(qMap);
+  label(30.0,  31.30, 'Cairo', '#8b949e').addTo(qMap);
+  label(33.85, 35.55, 'Beirut', '#8b949e').addTo(qMap);
+  label(31.78, 35.22, 'Jerusalem / Gaza', '#e3b341').addTo(qMap);
+  label(24.65, 46.78, 'Riyadh', '#8b949e').addTo(qMap);
+  label(24.45, 54.42, 'Abu Dhabi', '#8b949e').addTo(qMap);
+  label(26.20, 50.60, 'Bahrain', '#8b949e').addTo(qMap);
+  label(33.32, 44.40, 'Baghdad', '#8b949e').addTo(qMap);
+})();
+</script>
 
 </div>
 <div id="tooltip"></div>
