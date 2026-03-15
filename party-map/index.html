@@ -1570,10 +1570,8 @@ function initCharts(){
 
 // Gaza map
 const ZONES=[
-  {name:'N. Gaza
-& Gaza City', y:22, h:150},
-  {name:'Central Gaza
-(Deir al-Balah)',y:180,h:100},
+  {name:'N. Gaza / Gaza City', y:22, h:150},
+  {name:'Central Gaza (Deir al-Balah)',y:180,h:100},
   {name:'Khan Younis',y:288,h:100},
   {name:'Rafah',y:396,h:78},
 ];
@@ -1593,10 +1591,7 @@ function drawGazaMap(ei){
     const c=GCOL[ctrl[i]];
     svg.appendChild(E('rect',{x:MX,y:z.y,width:MW,height:z.h-3,fill:c.fill,opacity:.2,rx:3}));
     svg.appendChild(E('rect',{x:MX,y:z.y,width:MW,height:z.h-3,fill:'none',stroke:c.fill,'stroke-width':1.5,rx:3}));
-    z.name.split('
-').forEach((ln,li,arr)=>{
-      svg.appendChild(E('text',{x:MX+MW/2,y:z.y+z.h/2-3+(li-(arr.length-1)/2)*13,'text-anchor':'middle','font-size':9,'font-weight':600,fill:'#e6edf3','font-family':'Inter,sans-serif'},ln));
-    });
+    svg.appendChild(E('text',{x:MX+MW/2,y:z.y+z.h/2+4,'text-anchor':'middle','font-size':9,'font-weight':600,fill:'#e6edf3','font-family':'Inter,sans-serif'},z.name));
     svg.appendChild(E('text',{x:MX+MW+7,y:z.y+z.h/2+4,'font-size':8.5,'font-weight':600,fill:c.fill,'font-family':'Inter,sans-serif'},c.lbl));
   });
 
